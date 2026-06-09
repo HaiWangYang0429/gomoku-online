@@ -685,7 +685,7 @@ button {
     <div class="lobby-panel" id="panelJoin">
       <div class="section-label">输入房间码</div>
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
-        <input class="lobby-input" id="roomCodeInput" type="tel" maxlength="6" placeholder="输入房间码" autocomplete="off" inputmode="numeric">
+        <input class="lobby-input" id="roomCodeInput" type="tel" maxlength="4" placeholder="输入房间码" autocomplete="off" inputmode="numeric">
       </div>
       <button class="lobby-btn primary" id="joinBtn" onclick="joinRoom()">加入对战</button>
       <div class="lobby-msg" id="joinMsg"></div>
@@ -734,7 +734,7 @@ button {
   <div class="win-card">
     <h2 id="winTitle">黑棋获胜！</h2>
     <p id="winSub">精彩的对局</p>
-    <button onclick="requestRestart()">再来一局</button>
+    <button onclick="requestRematch()">再来一局</button>
   </div>
 </div>
 
@@ -862,7 +862,7 @@ document.addEventListener('touchstart', initSoundOnGesture);
 
 function generateCode() {
   let code = '';
-  for (let i = 0; i < 6; i++) code += Math.floor(Math.random() * 10);
+  for (let i = 0; i < 4; i++) code += Math.floor(Math.random() * 10);
   return code;
 }
 
@@ -968,6 +968,11 @@ function handleMessage(msg) {
 
     case 'restart_rejected':
       showToast('对方拒绝了重新开始请求');
+      break;
+
+    case 'rematch':
+      resetGame();
+      showToast('对方发起了再来一局');
       break;
 
     case 'opponent_disconnected':
@@ -1241,6 +1246,12 @@ function requestRestart() {
   if (!opponentConnected) return;
   ws.send(JSON.stringify({ type: 'restart_request' }));
   showToast('已向对方发送重新开始请求，等待对方同意');
+}
+
+function requestRematch() {
+  if (!opponentConnected) return;
+  resetGame();
+  ws.send(JSON.stringify({ type: 'rematch' }));
 }
 
 let lastEmojiTime = 0;
