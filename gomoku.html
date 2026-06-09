@@ -2,31 +2,43 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>五子棋 - 联机对战</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+:root {
+  --cell: 40px;
+  --padding: 20px;
+  --board-size: calc(var(--cell) * 14 + var(--padding) * 2);
+}
+
+html { overflow-x: hidden; }
+
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+  max-width: 700px;
 }
 
 h1 {
   color: #fff;
-  font-size: 36px;
+  font-size: clamp(22px, 5vw, 36px);
   text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
   letter-spacing: 8px;
 }
@@ -34,16 +46,18 @@ h1 {
 .info-bar {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: clamp(10px, 3vw, 30px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .player-tag {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 24px;
+  gap: clamp(4px, 1.5vw, 10px);
+  padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 24px);
   border-radius: 40px;
-  font-size: 16px;
+  font-size: clamp(12px, 2.5vw, 16px);
   font-weight: 600;
   color: #fff;
   transition: all 0.3s;
@@ -67,8 +81,8 @@ h1 {
 }
 
 .stone-icon {
-  width: 22px;
-  height: 22px;
+  width: clamp(14px, 3vw, 22px);
+  height: clamp(14px, 3vw, 22px);
   border-radius: 50%;
   display: inline-block;
 }
@@ -84,40 +98,45 @@ h1 {
 }
 
 #status {
-  font-size: 20px;
+  font-size: clamp(14px, 3vw, 20px);
   color: #ffd700;
   font-weight: 700;
-  min-height: 30px;
+  min-height: 24px;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
 }
 
 .board-wrapper {
   position: relative;
-  padding: 28px;
+  padding: clamp(10px, 2.5vw, 28px);
   border-radius: 12px;
   background: linear-gradient(145deg, #c6943e, #dbb060);
   box-shadow:
     0 10px 40px rgba(0,0,0,0.5),
     inset 0 1px 0 rgba(255,255,255,0.2),
     0 0 60px rgba(198, 148, 62, 0.3);
+  max-width: 100%;
 }
 
 canvas {
   display: block;
   cursor: pointer;
   border-radius: 4px;
+  width: min(640px, calc(100vw - 60px));
+  height: min(640px, calc(100vw - 60px));
 }
 
 .btn-row {
   display: flex;
-  gap: 16px;
+  gap: clamp(8px, 2vw, 16px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 button {
-  padding: 12px 36px;
+  padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 36px);
   border: none;
   border-radius: 40px;
-  font-size: 15px;
+  font-size: clamp(12px, 2.5vw, 15px);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -140,15 +159,24 @@ button {
 
 #undoBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
 
+#surrenderBtn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+#surrenderBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6); }
+
 .role-badge {
   position: fixed;
-  top: 20px;
-  right: 30px;
-  padding: 8px 20px;
+  top: 10px;
+  right: 10px;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: clamp(10px, 2vw, 14px);
   font-weight: 600;
   color: #fff;
+  z-index: 10;
 }
 
 .role-badge.p1 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
@@ -189,18 +217,21 @@ button {
   align-items: center;
   z-index: 100;
   backdrop-filter: blur(4px);
+  padding: 20px;
 }
 
 .overlay.show { display: flex; }
 
 .win-card {
   background: linear-gradient(145deg, #1a1a2e, #16213e);
-  padding: 50px 60px;
+  padding: clamp(30px, 6vw, 50px) clamp(24px, 6vw, 60px);
   border-radius: 20px;
   text-align: center;
   border: 1px solid rgba(255,215,0,0.3);
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   animation: popIn 0.4s ease;
+  max-width: 400px;
+  width: 100%;
 }
 
 @keyframes popIn {
@@ -208,8 +239,8 @@ button {
   100% { transform: scale(1); opacity: 1; }
 }
 
-.win-card h2 { color: #ffd700; font-size: 32px; margin-bottom: 10px; }
-.win-card p { color: #aaa; font-size: 16px; margin-bottom: 30px; }
+.win-card h2 { color: #ffd700; font-size: clamp(20px, 5vw, 32px); margin-bottom: 10px; }
+.win-card p { color: #aaa; font-size: clamp(13px, 3vw, 16px); margin-bottom: 24px; }
 .win-card button {
   background: linear-gradient(135deg, #f7971e, #ffd200);
   color: #333;
@@ -219,30 +250,25 @@ button {
 
 .connection-status {
   position: fixed;
-  top: 20px;
-  left: 30px;
+  top: 10px;
+  left: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: clamp(10px, 2vw, 13px);
   color: #aaa;
+  z-index: 10;
 }
 
 .conn-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #e74c3c;
   transition: background 0.3s;
 }
 
 .conn-dot.online { background: #2ecc71; }
-.conn-dot.connecting { background: #f39c12; animation: blink 1s infinite; }
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
 
 .lobby-overlay {
   position: fixed;
@@ -254,36 +280,39 @@ button {
   align-items: center;
   z-index: 200;
   backdrop-filter: blur(8px);
+  padding: 16px;
+  overflow-y: auto;
 }
 
 .lobby-card {
   background: linear-gradient(145deg, #1a1a2e, #16213e);
-  padding: 44px 56px;
+  padding: clamp(24px, 5vw, 44px) clamp(20px, 5vw, 56px);
   border-radius: 20px;
   text-align: center;
   border: 1px solid rgba(255,215,0,0.3);
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   animation: popIn 0.4s ease;
-  min-width: 420px;
+  width: 100%;
+  max-width: 420px;
 }
 
 .lobby-card h2 {
   color: #fff;
-  font-size: 28px;
+  font-size: clamp(20px, 5vw, 28px);
   margin-bottom: 6px;
   letter-spacing: 4px;
 }
 
 .lobby-card .subtitle {
   color: #888;
-  font-size: 14px;
-  margin-bottom: 30px;
+  font-size: clamp(11px, 2.5vw, 14px);
+  margin-bottom: 24px;
 }
 
 .lobby-tabs {
   display: flex;
   gap: 0;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.1);
@@ -292,7 +321,7 @@ button {
 .lobby-tab {
   flex: 1;
   padding: 12px 0;
-  font-size: 15px;
+  font-size: clamp(13px, 2.5vw, 15px);
   font-weight: 600;
   color: #888;
   background: rgba(255,255,255,0.03);
@@ -305,10 +334,6 @@ button {
 .lobby-tab.active {
   color: #fff;
   background: rgba(255,215,0,0.12);
-}
-
-.lobby-tab:hover:not(.active) {
-  background: rgba(255,255,255,0.06);
 }
 
 .lobby-panel { display: none; }
@@ -329,7 +354,7 @@ button {
 }
 
 .room-code-display .code {
-  font-size: 32px;
+  font-size: clamp(24px, 6vw, 32px);
   font-weight: 800;
   color: #ffd700;
   letter-spacing: 6px;
@@ -344,7 +369,7 @@ button {
 
 .role-select-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   margin-bottom: 20px;
 }
@@ -354,7 +379,7 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px 28px;
+  padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 28px);
   border-radius: 12px;
   border: 2px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.03);
@@ -362,9 +387,7 @@ button {
   transition: all 0.3s;
 }
 
-.role-choice:hover {
-  border-color: rgba(255,215,0,0.3);
-}
+.role-choice:hover { border-color: rgba(255,215,0,0.3); }
 
 .role-choice.selected {
   border-color: gold;
@@ -394,33 +417,26 @@ button {
   font-weight: 600;
 }
 
-.lobby-input-group {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
 .lobby-input {
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 12px;
   padding: 14px 20px;
-  font-size: 22px;
+  font-size: clamp(18px, 4vw, 22px);
   font-weight: 700;
   color: #fff;
   text-align: center;
   letter-spacing: 6px;
-  width: 200px;
+  width: 100%;
+  max-width: 200px;
   font-family: 'Courier New', monospace;
   outline: none;
   text-transform: uppercase;
   transition: border-color 0.3s;
+  margin-bottom: 16px;
 }
 
-.lobby-input:focus {
-  border-color: rgba(255,215,0,0.5);
-}
+.lobby-input:focus { border-color: rgba(255,215,0,0.5); }
 
 .lobby-input::placeholder {
   color: rgba(255,255,255,0.2);
@@ -486,14 +502,15 @@ button {
 
 .room-id-display {
   position: fixed;
-  top: 60px;
-  right: 30px;
-  padding: 6px 16px;
+  top: 40px;
+  right: 10px;
+  padding: 4px 12px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: clamp(9px, 2vw, 12px);
   color: #888;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
+  z-index: 10;
 }
 
 .hidden { display: none !important; }
@@ -510,16 +527,28 @@ button {
   margin-top: 8px;
 }
 
-.copy-btn:hover {
-  background: rgba(255,215,0,0.1);
-}
+.copy-btn:hover { background: rgba(255,215,0,0.1); }
 
 .server-status {
   position: fixed;
-  bottom: 20px;
-  left: 30px;
-  font-size: 12px;
+  bottom: 10px;
+  left: 10px;
+  font-size: clamp(9px, 2vw, 12px);
   color: #666;
+}
+
+@media (max-width: 480px) {
+  .container { gap: 10px; padding: 10px; }
+  .board-wrapper { padding: 8px; }
+  canvas {
+    width: calc(100vw - 36px);
+    height: calc(100vw - 36px);
+  }
+  .btn-row { gap: 6px; }
+  button { padding: 8px 16px; font-size: 12px; letter-spacing: 1px; }
+  .lobby-card { padding: 20px 16px; }
+  .role-select-row { gap: 8px; }
+  .role-choice { padding: 12px 16px; }
 }
 </style>
 </head>
@@ -563,7 +592,7 @@ button {
 
     <div class="lobby-panel" id="panelJoin">
       <div class="section-label">输入房间码</div>
-      <div class="lobby-input-group">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
         <input class="lobby-input" id="roomCodeInput" type="text" maxlength="6" placeholder="输入房间码" autocomplete="off" spellcheck="false">
       </div>
       <button class="lobby-btn primary" id="joinBtn" onclick="joinRoom()">加入对战</button>
@@ -593,6 +622,7 @@ button {
 
   <div class="btn-row">
     <button id="undoBtn" onclick="requestUndo()">悔 棋</button>
+    <button id="surrenderBtn" onclick="requestSurrender()">认 输</button>
     <button id="restartBtn" onclick="requestRestart()">重新开始</button>
   </div>
 </div>
@@ -609,12 +639,13 @@ button {
 
 <script>
 const SIZE = 15;
+const INTERNAL_SIZE = 640;
 const CELL = 40;
 const PADDING = 20;
-const CANVAS_SIZE = CELL * (SIZE - 1) + PADDING * 2;
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
-canvas.width = canvas.height = CANVAS_SIZE;
+canvas.width = canvas.height = INTERNAL_SIZE;
 
 let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
 let myRole = null;
@@ -636,29 +667,20 @@ function generateCode() {
 
 function connectServer() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${location.host}`;
-
-  ws = new WebSocket(wsUrl);
+  ws = new WebSocket(`${protocol}//${location.host}`);
 
   ws.onopen = () => {
     document.getElementById('serverStatus').textContent = '服务器: 已连接';
-    console.log('WebSocket 已连接');
   };
 
-  ws.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
-    handleMessage(msg);
-  };
+  ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
 
   ws.onclose = () => {
     document.getElementById('serverStatus').textContent = '服务器: 已断开';
-    console.log('WebSocket 已断开');
     setTimeout(connectServer, 3000);
   };
 
-  ws.onerror = (err) => {
-    console.error('WebSocket 错误:', err);
-  };
+  ws.onerror = () => {};
 }
 
 function handleMessage(msg) {
@@ -724,6 +746,11 @@ function handleMessage(msg) {
       updateStatus();
       break;
 
+    case 'surrender':
+      gameOver = true;
+      showSurrenderResult(msg.player);
+      break;
+
     case 'restart_request':
       resetGame();
       ws.send(JSON.stringify({ type: 'restart_done' }));
@@ -768,11 +795,10 @@ function createRoom() {
 
   roomId = generateCode();
   myRole = selectedRole;
-
   ws.send(JSON.stringify({ type: 'create_room', roomId, role: myRole }));
 }
 
-function showRoomCreated(roomId, role) {
+function showRoomCreated(roomId) {
   const msgEl = document.getElementById('createMsg');
   msgEl.textContent = '';
   const createPanel = document.getElementById('panelCreate');
@@ -794,16 +820,11 @@ function joinRoom() {
   const msgEl = document.getElementById('joinMsg');
   const btn = document.getElementById('joinBtn');
 
-  if (!code) {
-    msgEl.textContent = '请输入房间码';
-    msgEl.className = 'lobby-msg';
-    return;
-  }
+  if (!code) { msgEl.textContent = '请输入房间码'; msgEl.className = 'lobby-msg'; return; }
 
   btn.disabled = true;
   msgEl.textContent = '正在加入房间...';
   msgEl.className = 'lobby-msg';
-
   roomId = code;
   ws.send(JSON.stringify({ type: 'join_room', roomId: code }));
 }
@@ -818,13 +839,8 @@ function copyCode() {
 
 function updateRoleBadge() {
   const badge = document.getElementById('roleBadge');
-  if (myRole === 1) {
-    badge.className = 'role-badge p1';
-    badge.textContent = '你是：黑棋（先手）';
-  } else {
-    badge.className = 'role-badge p2';
-    badge.textContent = '你是：白棋（后手）';
-  }
+  badge.className = myRole === 1 ? 'role-badge p1' : 'role-badge p2';
+  badge.textContent = myRole === 1 ? '你是：黑棋（先手）' : '你是：白棋（后手）';
 }
 
 function updateConnection(online) {
@@ -837,22 +853,11 @@ function updateStatus() {
   const el = document.getElementById('status');
   const tagB = document.getElementById('tagBlack');
   const tagW = document.getElementById('tagWhite');
-
-  if (gameOver) {
-    el.textContent = '';
-    tagB.classList.remove('active');
-    tagW.classList.remove('active');
-    return;
-  }
-
+  if (gameOver) { el.textContent = ''; tagB.classList.remove('active'); tagW.classList.remove('active'); return; }
   if (currentTurn === 1) {
-    el.textContent = '黑棋落子';
-    tagB.classList.add('active');
-    tagW.classList.remove('active');
+    el.textContent = '黑棋落子'; tagB.classList.add('active'); tagW.classList.remove('active');
   } else {
-    el.textContent = '白棋落子';
-    tagW.classList.add('active');
-    tagB.classList.remove('active');
+    el.textContent = '白棋落子'; tagW.classList.add('active'); tagB.classList.remove('active');
   }
 }
 
@@ -868,30 +873,21 @@ function resetGame() {
 }
 
 function draw() {
-  ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
+  ctx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
   ctx.fillStyle = '#d4a54a';
-  ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  ctx.fillRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
 
   ctx.strokeStyle = '#8b6914';
   ctx.lineWidth = 1;
-
   for (let i = 0; i < SIZE; i++) {
     const p = PADDING + i * CELL;
-    ctx.beginPath();
-    ctx.moveTo(PADDING, p);
-    ctx.lineTo(PADDING + (SIZE - 1) * CELL, p);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(p, PADDING);
-    ctx.lineTo(p, PADDING + (SIZE - 1) * CELL);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PADDING, p); ctx.lineTo(PADDING + (SIZE - 1) * CELL, p); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p, PADDING); ctx.lineTo(p, PADDING + (SIZE - 1) * CELL); ctx.stroke();
   }
 
-  const stars = [3, 7, 11];
   ctx.fillStyle = '#8b6914';
-  for (const r of stars) {
-    for (const c of stars) {
+  for (const r of [3, 7, 11]) {
+    for (const c of [3, 7, 11]) {
       ctx.beginPath();
       ctx.arc(PADDING + c * CELL, PADDING + r * CELL, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -900,9 +896,7 @@ function draw() {
 
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
-      if (board[r][c] !== 0) {
-        drawStone(r, c, board[r][c]);
-      }
+      if (board[r][c] !== 0) drawStone(r, c, board[r][c]);
     }
   }
 
@@ -921,25 +915,18 @@ function drawStone(r, c, player) {
   const x = PADDING + c * CELL;
   const y = PADDING + r * CELL;
   const radius = CELL * 0.43;
-
   ctx.save();
   ctx.shadowColor = 'rgba(0,0,0,0.4)';
   ctx.shadowBlur = 6;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
-
+  const grad = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, radius);
   if (player === 1) {
-    const grad = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, radius);
-    grad.addColorStop(0, '#555');
-    grad.addColorStop(1, '#111');
-    ctx.fillStyle = grad;
+    grad.addColorStop(0, '#555'); grad.addColorStop(1, '#111');
   } else {
-    const grad = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, radius);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(1, '#bbb');
-    ctx.fillStyle = grad;
+    grad.addColorStop(0, '#fff'); grad.addColorStop(1, '#bbb');
   }
-
+  ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fill();
@@ -947,18 +934,17 @@ function drawStone(r, c, player) {
 }
 
 canvas.addEventListener('click', (e) => {
-  console.log('[点击] gameOver=' + gameOver + ', opponentConnected=' + opponentConnected + ', myRole=' + myRole + ', currentTurn=' + currentTurn);
-  if (gameOver || !opponentConnected || myRole === null) { console.log('[点击被拦截] 条件不满足'); return; }
-  if (currentTurn !== myRole) { console.log('[点击被拦截] 不是你的回合'); return; }
+  if (gameOver || !opponentConnected || myRole === null) return;
+  if (currentTurn !== myRole) return;
 
   const rect = canvas.getBoundingClientRect();
-  const scale = CANVAS_SIZE / rect.width;
-  const mx = (e.clientX - rect.left) * scale;
-  const my = (e.clientY - rect.top) * scale;
+  const scaleX = INTERNAL_SIZE / rect.width;
+  const scaleY = INTERNAL_SIZE / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
 
   const c = Math.round((mx - PADDING) / CELL);
   const r = Math.round((my - PADDING) / CELL);
-
   if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return;
   if (board[r][c] !== 0) return;
 
@@ -966,9 +952,7 @@ canvas.addEventListener('click', (e) => {
   moveHistory.push({ r, c, player: myRole });
   lastMove = { r, c };
   currentTurn = myRole === 1 ? 2 : 1;
-
   ws.send(JSON.stringify({ type: 'move', r, c, player: myRole }));
-
   draw();
   updateStatus();
   checkWin(r, c, myRole);
@@ -980,36 +964,23 @@ function checkWin(r, c, player) {
     let count = 1;
     for (let d = 1; d < 5; d++) {
       const nr = r + dr * d, nc = c + dc * d;
-      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) count++;
-      else break;
+      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) count++; else break;
     }
     for (let d = 1; d < 5; d++) {
       const nr = r - dr * d, nc = c - dc * d;
-      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) count++;
-      else break;
+      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) count++; else break;
     }
-    if (count >= 5) {
-      gameOver = true;
-      showWin(player);
-      return;
-    }
+    if (count >= 5) { gameOver = true; showWin(player); return; }
   }
-
   let full = true;
-  for (let i = 0; i < SIZE && full; i++)
-    for (let j = 0; j < SIZE && full; j++)
-      if (board[i][j] === 0) full = false;
-  if (full) {
-    gameOver = true;
-    showDraw();
-  }
+  for (let i = 0; i < SIZE && full; i++) for (let j = 0; j < SIZE && full; j++) if (board[i][j] === 0) full = false;
+  if (full) { gameOver = true; showDraw(); }
 }
 
 function showWin(player) {
-  const name = player === 1 ? '黑棋' : '白棋';
   const isMe = player === myRole;
   document.getElementById('winTitle').textContent = isMe ? '🎉 你赢了！' : '😔 你输了！';
-  document.getElementById('winSub').textContent = `${name}获得胜利，精彩的对局！`;
+  document.getElementById('winSub').textContent = `${player === 1 ? '黑棋' : '白棋'}获得胜利！`;
   document.getElementById('overlay').classList.add('show');
   updateStatus();
 }
@@ -1019,6 +990,25 @@ function showDraw() {
   document.getElementById('winSub').textContent = '势均力敌，再来一局！';
   document.getElementById('overlay').classList.add('show');
   updateStatus();
+}
+
+function showSurrenderResult(surrenderPlayer) {
+  const isMe = surrenderPlayer === myRole;
+  const winner = surrenderPlayer === 1 ? 2 : 1;
+  document.getElementById('winTitle').textContent = isMe ? '🏳️ 你认输了' : '🎉 对手认输了！';
+  document.getElementById('winSub').textContent = isMe
+    ? '胜败乃兵家常事，再来一局！'
+    : `${winner === 1 ? '黑棋' : '白棋'}获得胜利！`;
+  document.getElementById('overlay').classList.add('show');
+  updateStatus();
+}
+
+function requestSurrender() {
+  if (gameOver || !opponentConnected || myRole === null) return;
+  if (!confirm('确定要认输吗？')) return;
+  gameOver = true;
+  ws.send(JSON.stringify({ type: 'surrender', player: myRole }));
+  showSurrenderResult(myRole);
 }
 
 function requestUndo() {
@@ -1033,7 +1023,7 @@ function requestRestart() {
 
 function createParticles() {
   const container = document.getElementById('particles');
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 20; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = Math.random() * 100 + '%';
