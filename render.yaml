@@ -2,7 +2,7 @@ services:
   - type: web
     name: gomoku-online
     runtime: node
-    branch: master
+    branch: main
     buildCommand: npm install
     startCommand: node server.js
     plan: free

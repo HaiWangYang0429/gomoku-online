@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
         res.end('Error loading file');
         return;
       }
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0' });
       res.end(data);
     });
   } else {
@@ -75,7 +75,8 @@ wss.on('connection', (ws) => {
         console.log(`玩家加入房间 ${roomId}，选择 ${currentRole === 1 ? '黑棋' : '白棋'}`);
       }
       else if (msg.type === 'move' || msg.type === 'undo_request' || msg.type === 'undo_done' ||
-               msg.type === 'restart_request' || msg.type === 'restart_done' || msg.type === 'surrender') {
+               msg.type === 'restart_request' || msg.type === 'restart_done' || msg.type === 'restart_rejected' ||
+               msg.type === 'surrender' || msg.type === 'emoji') {
         if (!currentRoom || !rooms.has(currentRoom)) {
           console.log(`[转发失败] currentRoom=${currentRoom}, 消息类型=${msg.type}`);
           return;

@@ -546,10 +546,102 @@ button {
   }
   .btn-row { gap: 6px; }
   button { padding: 8px 16px; font-size: 12px; letter-spacing: 1px; }
+  .emoji-btn { width: 34px; height: 34px; font-size: 18px; }
+  .emoji-row { gap: 4px; }
   .lobby-card { padding: 20px 16px; }
   .role-select-row { gap: 8px; }
   .role-choice { padding: 12px 16px; }
 }
+
+.emoji-row {
+  display: flex;
+  gap: clamp(6px, 1.5vw, 12px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.emoji-btn {
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
+  border: none;
+  border-radius: 50%;
+  font-size: clamp(18px, 4vw, 26px);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  letter-spacing: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.emoji-btn:hover { transform: scale(1.2); background: rgba(255, 255, 255, 0.15); }
+.emoji-btn:active { transform: scale(0.9); }
+
+.emoji-bubble {
+  position: absolute;
+  font-size: clamp(48px, 12vw, 80px);
+  pointer-events: none;
+  z-index: 50;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: emojiFloat 3s ease-out forwards;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+@keyframes emojiFloat {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  30%  { transform: translate(-50%, -50%) scale(1); }
+  70%  { opacity: 1; transform: translate(-50%, -70%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); }
+}
+
+.toast {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #ffd700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 300;
+  pointer-events: none;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+}
+@keyframes toastIn { 0% { opacity:0; transform: translateX(-50%) translateY(-20px); } 100% { opacity:1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { 0% { opacity:1; } 100% { opacity:0; } }
+
+.confirm-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 250; backdrop-filter: blur(4px); padding: 20px;
+}
+.confirm-card {
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  padding: 30px 40px;
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,215,0,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: popIn 0.3s ease;
+  max-width: 360px;
+  width: 100%;
+}
+.confirm-card h3 { color: #fff; font-size: 18px; margin-bottom: 20px; }
+.confirm-card .confirm-btns { display: flex; gap: 12px; justify-content: center; }
+.confirm-card .confirm-btns button {
+  padding: 10px 32px; border: none; border-radius: 30px;
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.confirm-card .btn-yes { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+.confirm-card .btn-yes:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(46,204,113,0.5); }
+.confirm-card .btn-no { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+.confirm-card .btn-no:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(231,76,60,0.5); }
 </style>
 </head>
 <body>
@@ -625,6 +717,17 @@ button {
     <button id="surrenderBtn" onclick="requestSurrender()">认 输</button>
     <button id="restartBtn" onclick="requestRestart()">重新开始</button>
   </div>
+
+  <div class="emoji-row">
+    <button class="emoji-btn" onclick="sendEmoji('😂')">😂</button>
+    <button class="emoji-btn" onclick="sendEmoji('🤔')">🤔</button>
+    <button class="emoji-btn" onclick="sendEmoji('👍')">👍</button>
+    <button class="emoji-btn" onclick="sendEmoji('😤')">😤</button>
+    <button class="emoji-btn" onclick="sendEmoji('🎉')">🎉</button>
+    <button class="emoji-btn" onclick="sendEmoji('🔥')">🔥</button>
+    <button class="emoji-btn" onclick="sendEmoji('😎')">😎</button>
+    <button class="emoji-btn" onclick="sendEmoji('👏')">👏</button>
+  </div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -657,6 +760,105 @@ let lastMove = null;
 let ws = null;
 let roomId = '';
 let selectedRole = 1;
+
+const SoundEngine = {
+  ctx: null,
+  initialized: false,
+  init() {
+    if (this.initialized) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.initialized = true;
+  },
+  playStone() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const bufferSize = this.ctx.sampleRate * 0.05;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 1.5;
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    noise.connect(filter).connect(noiseGain).connect(this.ctx.destination);
+    noise.start(t);
+    noise.stop(t + 0.08);
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(60, t + 0.1);
+    const oscGain = this.ctx.createGain();
+    oscGain.gain.setValueAtTime(0.5, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    osc.connect(oscGain).connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.15);
+  },
+  playWin() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      const gain = this.ctx.createGain();
+      const start = t + i * 0.15;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.35, start + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
+      osc.connect(gain).connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+  },
+  playDisconnect() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const notes = [880, 660];
+    notes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      const gain = this.ctx.createGain();
+      const start = t + i * 0.2;
+      gain.gain.setValueAtTime(0.15, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+      osc.connect(gain).connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.15);
+    });
+  },
+  playRestart() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, t);
+    osc.frequency.exponentialRampToValueAtTime(900, t + 0.25);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc.connect(gain).connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.3);
+  }
+};
+
+function initSoundOnGesture() {
+  SoundEngine.init();
+  document.removeEventListener('click', initSoundOnGesture);
+  document.removeEventListener('touchstart', initSoundOnGesture);
+}
+document.addEventListener('click', initSoundOnGesture);
+document.addEventListener('touchstart', initSoundOnGesture);
 
 function generateCode() {
   let code = '';
@@ -715,16 +917,15 @@ function handleMessage(msg) {
       currentTurn = msg.player === 1 ? 2 : 1;
       draw();
       updateStatus();
+      SoundEngine.playStone();
       checkWin(msg.r, msg.c, msg.player);
       break;
 
     case 'undo_request':
-      if (moveHistory.length >= 2) {
+      if (moveHistory.length >= 1) {
         const last = moveHistory.pop();
         board[last.r][last.c] = 0;
-        const prev = moveHistory.pop();
-        board[prev.r][prev.c] = 0;
-        currentTurn = prev.player;
+        currentTurn = last.player;
         lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
         gameOver = false;
         document.getElementById('overlay').classList.remove('show');
@@ -747,26 +948,41 @@ function handleMessage(msg) {
 
     case 'surrender':
       gameOver = true;
+      SoundEngine.playWin();
       showSurrenderResult(msg.player);
       break;
 
     case 'restart_request':
-      resetGame();
-      ws.send(JSON.stringify({ type: 'restart_done' }));
+      showConfirm('对方请求重新开始，是否同意？', () => {
+        resetGame();
+        ws.send(JSON.stringify({ type: 'restart_done' }));
+      }, () => {
+        ws.send(JSON.stringify({ type: 'restart_rejected' }));
+      });
       break;
 
     case 'restart_done':
       resetGame();
+      showToast('对方同意重新开始');
+      break;
+
+    case 'restart_rejected':
+      showToast('对方拒绝了重新开始请求');
       break;
 
     case 'opponent_disconnected':
       opponentConnected = false;
       updateConnection(false);
       document.getElementById('connText').textContent = '对手已断开';
+      SoundEngine.playDisconnect();
       break;
 
     case 'error':
       alert(msg.message);
+      break;
+
+    case 'emoji':
+      showEmojiBubble(msg.emoji);
       break;
   }
 }
@@ -869,6 +1085,7 @@ function resetGame() {
   document.getElementById('overlay').classList.remove('show');
   draw();
   updateStatus();
+  SoundEngine.playRestart();
 }
 
 function draw() {
@@ -978,6 +1195,7 @@ function checkWin(r, c, player) {
 
 function showWin(player) {
   const isMe = player === myRole;
+  if (isMe) SoundEngine.playWin();
   document.getElementById('winTitle').textContent = isMe ? '🎉 你赢了！' : '😔 你输了！';
   document.getElementById('winSub').textContent = `${player === 1 ? '黑棋' : '白棋'}获得胜利！`;
   document.getElementById('overlay').classList.add('show');
@@ -1004,20 +1222,46 @@ function showSurrenderResult(surrenderPlayer) {
 
 function requestSurrender() {
   if (gameOver || !opponentConnected || myRole === null) return;
-  if (!confirm('确定要认输吗？')) return;
-  gameOver = true;
-  ws.send(JSON.stringify({ type: 'surrender', player: myRole }));
-  showSurrenderResult(myRole);
+  showConfirm('确定要认输吗？', () => {
+    gameOver = true;
+    ws.send(JSON.stringify({ type: 'surrender', player: myRole }));
+    showSurrenderResult(myRole);
+  });
 }
 
 function requestUndo() {
-  if (gameOver || moveHistory.length < 2) return;
+  if (gameOver || moveHistory.length === 0) return;
+  const lastMove = moveHistory[moveHistory.length - 1];
+  if (lastMove.player !== myRole) return;
+  if (currentTurn !== (myRole === 1 ? 2 : 1)) return;
   ws.send(JSON.stringify({ type: 'undo_request' }));
 }
 
 function requestRestart() {
+  if (!opponentConnected) return;
   ws.send(JSON.stringify({ type: 'restart_request' }));
-  resetGame();
+  showToast('已向对方发送重新开始请求，等待对方同意');
+}
+
+let lastEmojiTime = 0;
+function sendEmoji(emoji) {
+  if (!opponentConnected || myRole === null) return;
+  const now = Date.now();
+  if (now - lastEmojiTime < 1000) return;
+  lastEmojiTime = now;
+  showEmojiBubble(emoji);
+  ws.send(JSON.stringify({ type: 'emoji', emoji: emoji }));
+}
+
+function showEmojiBubble(emoji) {
+  const wrapper = document.querySelector('.board-wrapper');
+  const bubble = document.createElement('div');
+  bubble.className = 'emoji-bubble';
+  bubble.textContent = emoji;
+  wrapper.appendChild(bubble);
+  setTimeout(() => {
+    if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+  }, 3000);
 }
 
 function createParticles() {
@@ -1031,6 +1275,23 @@ function createParticles() {
     p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
     container.appendChild(p);
   }
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 3000);
+}
+
+function showConfirm(msg, onYes, onNo) {
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `<div class="confirm-card"><h3>${msg}</h3><div class="confirm-btns"><button class="btn-yes">同意</button><button class="btn-no">拒绝</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.btn-yes').onclick = () => { document.body.removeChild(overlay); if (onYes) onYes(); };
+  overlay.querySelector('.btn-no').onclick = () => { document.body.removeChild(overlay); if (onNo) onNo(); };
 }
 
 draw();
