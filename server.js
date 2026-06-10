@@ -111,7 +111,7 @@ wss.on('connection', (ws) => {
       }
       else if (msg.type === 'move' || msg.type === 'undo_request' || msg.type === 'undo_done' ||
                msg.type === 'restart_request' || msg.type === 'restart_done' || msg.type === 'restart_rejected' ||
-               msg.type === 'surrender' || msg.type === 'emoji' || msg.type === 'rematch') {
+               msg.type === 'surrender' || msg.type === 'projectile' || msg.type === 'rematch') {
         if (!currentRoom || !rooms.has(currentRoom)) {
           console.log(`[转发失败] currentRoom=${currentRoom}, 消息类型=${msg.type}`);
           return;

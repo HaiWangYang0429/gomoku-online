@@ -546,48 +546,177 @@ button {
   }
   .btn-row { gap: 6px; }
   button { padding: 8px 16px; font-size: 12px; letter-spacing: 1px; }
-  .emoji-btn { width: 34px; height: 34px; font-size: 18px; }
-  .emoji-row { gap: 4px; }
+  .item-btn { padding: 4px 8px; }
+  .item-bar { gap: 6px; }
   .lobby-card { padding: 20px 16px; }
   .role-select-row { gap: 8px; }
   .role-choice { padding: 12px 16px; }
 }
 
-.emoji-row {
+.item-bar {
   display: flex;
-  gap: clamp(6px, 1.5vw, 12px);
+  gap: clamp(8px, 2vw, 16px);
   flex-wrap: wrap;
   justify-content: center;
 }
-.emoji-btn {
-  width: clamp(36px, 8vw, 48px);
-  height: clamp(36px, 8vw, 48px);
-  border: none;
-  border-radius: 50%;
-  font-size: clamp(18px, 4vw, 26px);
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.08);
-  transition: all 0.2s;
+.item-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0;
-  letter-spacing: 0;
+  gap: 2px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 12px;
+  padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2vw, 16px);
+  cursor: pointer;
+  transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  letter-spacing: 0;
 }
-.emoji-btn:hover { transform: scale(1.2); background: rgba(255, 255, 255, 0.15); }
-.emoji-btn:active { transform: scale(0.9); }
-
-.emoji-bubble {
+.item-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.15); }
+.item-btn:active { transform: scale(0.95); }
+.item-btn.selected { border: 2px solid #ffd700; background: rgba(255,215,0,0.15); box-shadow: 0 0 12px rgba(255,215,0,0.3); }
+.item-emoji { font-size: clamp(22px, 5vw, 32px); line-height: 1; }
+.item-name { font-size: clamp(9px, 2vw, 11px); color: #aaa; font-weight: 600; letter-spacing: 0; }
+.item-badge {
   position: absolute;
-  font-size: clamp(48px, 12vw, 80px);
+  top: -4px; right: -4px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 6px;
+  letter-spacing: 0;
+}
+.item-hint {
+  color: #666;
+  font-size: clamp(10px, 2vw, 12px);
+  text-align: center;
+  margin-top: 2px;
+}
+
+.projectile-layer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 50;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  animation: emojiFloat 3s ease-out forwards;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 500;
+  overflow: hidden;
+}
+.flying-item {
+  position: absolute;
+  font-size: clamp(28px, 6vw, 44px);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  will-change: transform;
+  z-index: 501;
+}
+.flying-tomato { animation: flySpin 0.6s linear; }
+.flying-squid { animation: flyWobble 0.8s ease-in-out; }
+.flying-turtle { animation: flyFlip 1.2s ease-in-out; }
+.flying-sword { animation: flyStreak 0.4s linear; }
+.flying-nuke { animation: flyPulse 1.5s ease-in-out; }
+@keyframes flySpin { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
+@keyframes flyWobble {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(10deg); }
+  75% { transform: translateY(15px) rotate(-10deg); }
+}
+@keyframes flyFlip { from { transform: rotateY(0deg); } to { transform: rotateY(720deg); } }
+@keyframes flyStreak {
+  0% { transform: scaleX(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  50% { transform: scaleX(2); filter: drop-shadow(0 0 12px rgba(255,255,255,0.9)); }
+  100% { transform: scaleX(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+}
+@keyframes flyPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
+
+.impact { position: absolute; pointer-events: none; z-index: 502; }
+.impact-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: particleFly 0.6s ease-out forwards;
+}
+@keyframes particleFly {
+  0% { transform: translate(0,0) scale(1); opacity:1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity:0; }
+}
+.impact-splat {
+  position: absolute;
+  border-radius: 50%;
+  animation: splatExpand 0.5s ease-out forwards;
+}
+@keyframes splatExpand {
+  0% { transform: translate(-50%,-50%) scale(0); opacity:0.9; }
+  100% { transform: translate(-50%,-50%) scale(3); opacity:0; }
+}
+.impact-ink {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(20,20,40,0.85), rgba(40,40,80,0.4), transparent);
+  animation: inkSpread 1.5s ease-out forwards;
+}
+@keyframes inkSpread {
+  0% { transform: translate(-50%,-50%) scale(0); opacity:1; }
+  60% { transform: translate(-50%,-50%) scale(2.5); opacity:0.5; }
+  100% { transform: translate(-50%,-50%) scale(3.5); opacity:0; }
+}
+.impact-slash {
+  position: absolute;
+  width: 80px; height: 4px;
+  background: linear-gradient(90deg, transparent, #fff, #ffd700, #fff, transparent);
+  animation: slashFade 0.4s ease-out forwards;
+}
+@keyframes slashFade {
+  0% { transform: translate(-50%,-50%) scaleX(0); opacity:1; }
+  50% { transform: translate(-50%,-50%) scaleX(1.5); opacity:1; }
+  100% { transform: translate(-50%,-50%) scaleX(2); opacity:0; }
+}
+.nuke-flash {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events: none; z-index: 499;
+  animation: nukeFlash 0.8s ease-out forwards;
+}
+@keyframes nukeFlash {
+  0% { background: rgba(255,200,50,0.8); }
+  30% { background: rgba(255,100,50,0.4); }
+  100% { background: transparent; }
+}
+.impact-shockwave {
+  position: absolute;
+  border: 3px solid rgba(255,150,50,0.8);
+  border-radius: 50%;
+  animation: shockwaveExpand 1s ease-out forwards;
+}
+@keyframes shockwaveExpand {
+  0% { width:0; height:0; transform: translate(-50%,-50%); opacity:1; }
+  100% { width:200px; height:200px; transform: translate(-50%,-50%); opacity:0; }
+}
+.screen-shake { animation: screenShake 0.5s ease-out; }
+@keyframes screenShake {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-8px, 4px); }
+  20% { transform: translate(8px, -4px); }
+  30% { transform: translate(-6px, 6px); }
+  40% { transform: translate(6px, -2px); }
+  50% { transform: translate(-4px, 4px); }
+  60% { transform: translate(4px, -4px); }
+  70% { transform: translate(-2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+.avatar-hit { animation: avatarHit 0.4s ease; }
+@keyframes avatarHit {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.7) rotate(-10deg); }
+  60% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.character-panel.opponent-target .character-avatar {
+  cursor: pointer;
+}
+.character-panel.opponent-target .character-avatar:hover {
+  filter: drop-shadow(0 0 8px rgba(255,100,100,0.6));
 }
 
 .character-panel {
@@ -617,6 +746,7 @@ button {
   height: clamp(44px, 9vw, 60px);
   border-radius: 50%;
   transition: transform 0.3s;
+  user-select: none;
 }
 .character-panel.active-turn .character-avatar::before {
   content: '';
@@ -792,13 +922,6 @@ button {
   margin-top: 30px;
   animation: textFadeIn 0.4s ease 0.8s both;
 }
-@keyframes emojiFloat {
-  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
-  15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-  30%  { transform: translate(-50%, -50%) scale(1); }
-  70%  { opacity: 1; transform: translate(-50%, -70%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -100%) scale(0.8); }
-}
 
 .toast {
   position: fixed;
@@ -850,6 +973,7 @@ button {
 <body>
 
 <div class="particles" id="particles"></div>
+<div class="projectile-layer" id="projectileLayer"></div>
 
 <div class="connection-status">
   <div class="conn-dot" id="connDot"></div>
@@ -927,16 +1051,31 @@ button {
     <button id="restartBtn" onclick="requestRestart()">重新开始</button>
   </div>
 
-  <div class="emoji-row">
-    <button class="emoji-btn" onclick="sendEmoji('😂')">😂</button>
-    <button class="emoji-btn" onclick="sendEmoji('🤔')">🤔</button>
-    <button class="emoji-btn" onclick="sendEmoji('👍')">👍</button>
-    <button class="emoji-btn" onclick="sendEmoji('😤')">😤</button>
-    <button class="emoji-btn" onclick="sendEmoji('🎉')">🎉</button>
-    <button class="emoji-btn" onclick="sendEmoji('🔥')">🔥</button>
-    <button class="emoji-btn" onclick="sendEmoji('😎')">😎</button>
-    <button class="emoji-btn" onclick="sendEmoji('👏')">👏</button>
+  <div class="item-bar" id="itemBar">
+    <button class="item-btn" data-item="tomato" onclick="selectItem('tomato')">
+      <span class="item-emoji">🍅</span>
+      <span class="item-name">番茄</span>
+      <span class="item-badge">x10</span>
+    </button>
+    <button class="item-btn" data-item="squid" onclick="selectItem('squid')">
+      <span class="item-emoji">🦑</span>
+      <span class="item-name">墨鱼</span>
+    </button>
+    <button class="item-btn" data-item="turtle" onclick="selectItem('turtle')">
+      <span class="item-emoji">🐢</span>
+      <span class="item-name">乌龟</span>
+    </button>
+    <button class="item-btn" data-item="sword" onclick="selectItem('sword')">
+      <span class="item-emoji">⚔️</span>
+      <span class="item-name">飞剑</span>
+      <span class="item-badge">x10</span>
+    </button>
+    <button class="item-btn" data-item="nuke" onclick="selectItem('nuke')">
+      <span class="item-emoji">☢️</span>
+      <span class="item-name">原子弹</span>
+    </button>
   </div>
+  <div class="item-hint">选择道具后，点击对方头像投掷</div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -971,6 +1110,231 @@ let roomId = '';
 let selectedRole = 1;
 let myCharacter = null;
 let opponentCharacter = null;
+let selectedItem = null;
+let lastProjectileTime = 0;
+
+const ITEMS = {
+  tomato: { emoji: '🍅', flyClass: 'flying-tomato', duration: 600, multi: 10, multiDelay: 80 },
+  squid:  { emoji: '🦑', flyClass: 'flying-squid',  duration: 800, multi: 1,  multiDelay: 0 },
+  turtle: { emoji: '🐢', flyClass: 'flying-turtle', duration: 1200, multi: 1, multiDelay: 0 },
+  sword:  { emoji: '⚔️', flyClass: 'flying-sword',  duration: 400, multi: 10, multiDelay: 60 },
+  nuke:   { emoji: '☢️', flyClass: 'flying-nuke',   duration: 1500, multi: 1, multiDelay: 0 }
+};
+
+function selectItem(type) {
+  if (selectedItem === type) {
+    selectedItem = null;
+    document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('selected'));
+    return;
+  }
+  selectedItem = type;
+  document.querySelectorAll('.item-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.item === type);
+  });
+}
+
+function getOpponentAvatarEl() {
+  if (myRole === 1) return document.getElementById('avatarWhite');
+  return document.getElementById('avatarBlack');
+}
+
+function getMyAvatarEl() {
+  if (myRole === 1) return document.getElementById('avatarBlack');
+  return document.getElementById('avatarWhite');
+}
+
+function getOpponentPanelId() {
+  return myRole === 1 ? 'panelWhite' : 'panelBlack';
+}
+
+function updateOpponentTarget() {
+  document.getElementById('panelBlack').classList.remove('opponent-target');
+  document.getElementById('panelWhite').classList.remove('opponent-target');
+  if (opponentConnected && myRole) {
+    document.getElementById(getOpponentPanelId()).classList.add('opponent-target');
+  }
+}
+
+function throwProjectile(itemType, targetAvatarEl) {
+  const item = ITEMS[itemType];
+  if (!item) return;
+  const layer = document.getElementById('projectileLayer');
+  const targetRect = targetAvatarEl.getBoundingClientRect();
+  const targetX = targetRect.left + targetRect.width / 2;
+  const targetY = targetRect.top + targetRect.height / 2;
+  const startX = targetX + (Math.random() - 0.5) * 300;
+  const startY = window.innerHeight + 50;
+
+  const el = document.createElement('div');
+  el.className = 'flying-item ' + item.flyClass;
+  el.textContent = item.emoji;
+  el.style.left = startX + 'px';
+  el.style.top = startY + 'px';
+  layer.appendChild(el);
+
+  const dx = targetX - startX;
+  const dy = targetY - startY;
+  el.animate([
+    { transform: 'translate(0, 0) scale(1)', offset: 0 },
+    { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 80}px) scale(1.2)`, offset: 0.4 },
+    { transform: `translate(${dx}px, ${dy}px) scale(1)`, offset: 1 }
+  ], {
+    duration: item.duration,
+    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    fill: 'forwards'
+  }).onfinish = () => {
+    el.remove();
+    createImpact(itemType, targetX, targetY, targetAvatarEl);
+  };
+}
+
+function createImpact(itemType, x, y, targetAvatarEl) {
+  const layer = document.getElementById('projectileLayer');
+
+  if (targetAvatarEl) {
+    targetAvatarEl.classList.remove('avatar-hit');
+    void targetAvatarEl.offsetWidth;
+    targetAvatarEl.classList.add('avatar-hit');
+    setTimeout(() => targetAvatarEl.classList.remove('avatar-hit'), 400);
+  }
+
+  switch (itemType) {
+    case 'tomato': {
+      for (let i = 0; i < 8; i++) {
+        const p = document.createElement('div');
+        p.className = 'impact-particle';
+        const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.5;
+        const dist = 20 + Math.random() * 30;
+        p.style.cssText = `left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;background:${['#e74c3c','#c0392b','#ff6b6b','#ff4444'][Math.floor(Math.random()*4)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+        p.style.position = 'absolute';
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+      }
+      const splat = document.createElement('div');
+      splat.className = 'impact-splat';
+      splat.style.cssText = `left:${x}px;top:${y}px;width:30px;height:30px;background:radial-gradient(circle, rgba(231,76,60,0.8), rgba(192,57,43,0.4), transparent);`;
+      splat.style.position = 'absolute';
+      layer.appendChild(splat);
+      setTimeout(() => splat.remove(), 500);
+      break;
+    }
+    case 'squid': {
+      const ink = document.createElement('div');
+      ink.className = 'impact-ink';
+      ink.style.cssText = `left:${x}px;top:${y}px;width:60px;height:60px;`;
+      ink.style.position = 'absolute';
+      layer.appendChild(ink);
+      setTimeout(() => ink.remove(), 1500);
+      for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'impact-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 15 + Math.random() * 40;
+        p.style.cssText = `left:${x}px;top:${y}px;width:${4+Math.random()*8}px;height:${4+Math.random()*8}px;background:${['#1a1a3e','#2c3e50','#34495e','#0d0d2b'][Math.floor(Math.random()*4)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+        p.style.position = 'absolute';
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+      }
+      break;
+    }
+    case 'turtle': {
+      const shell = document.createElement('div');
+      shell.className = 'impact-splat';
+      shell.style.cssText = `left:${x}px;top:${y}px;width:50px;height:50px;background:radial-gradient(circle, rgba(39,174,96,0.7), rgba(46,204,113,0.3), transparent);`;
+      shell.style.position = 'absolute';
+      layer.appendChild(shell);
+      setTimeout(() => shell.remove(), 500);
+      for (let i = 0; i < 6; i++) {
+        const star = document.createElement('div');
+        star.className = 'impact-particle';
+        const angle = (Math.PI * 2 * i) / 6;
+        const dist = 25 + Math.random() * 15;
+        star.style.cssText = `left:${x}px;top:${y}px;width:8px;height:8px;background:#ffd700;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+        star.style.position = 'absolute';
+        layer.appendChild(star);
+        setTimeout(() => star.remove(), 600);
+      }
+      document.body.classList.add('screen-shake');
+      setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+      break;
+    }
+    case 'sword': {
+      for (let i = 0; i < 3; i++) {
+        const slash = document.createElement('div');
+        slash.className = 'impact-slash';
+        const angle = -30 + i * 30;
+        slash.style.cssText = `left:${x + (Math.random()-0.5)*20}px;top:${y + (Math.random()-0.5)*20}px;transform-origin:center;`;
+        slash.style.position = 'absolute';
+        slash.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+        layer.appendChild(slash);
+        setTimeout(() => slash.remove(), 400);
+      }
+      for (let i = 0; i < 5; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'impact-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 20 + Math.random() * 30;
+        spark.style.cssText = `left:${x}px;top:${y}px;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${['#ffd700','#fff','#f39c12'][Math.floor(Math.random()*3)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+        spark.style.position = 'absolute';
+        layer.appendChild(spark);
+        setTimeout(() => spark.remove(), 600);
+      }
+      break;
+    }
+    case 'nuke': {
+      const flash = document.createElement('div');
+      flash.className = 'nuke-flash';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 800);
+      for (let i = 0; i < 3; i++) {
+        const wave = document.createElement('div');
+        wave.className = 'impact-shockwave';
+        wave.style.cssText = `left:${x}px;top:${y}px;animation-delay:${i*0.2}s;`;
+        wave.style.position = 'absolute';
+        layer.appendChild(wave);
+        setTimeout(() => wave.remove(), 1200);
+      }
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'impact-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 30 + Math.random() * 60;
+        p.style.cssText = `left:${x}px;top:${y}px;width:${5+Math.random()*10}px;height:${5+Math.random()*10}px;background:${['#ff6b35','#ff4444','#ffd700','#ff8c00','#fff'][Math.floor(Math.random()*5)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${0.6+Math.random()*0.4}s;`;
+        p.style.position = 'absolute';
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
+      document.body.classList.add('screen-shake');
+      setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+      break;
+    }
+  }
+}
+
+function onOpponentAvatarClick() {
+  if (!selectedItem || !opponentConnected || !myRole) return;
+  const now = Date.now();
+  if (now - lastProjectileTime < 300) return;
+  lastProjectileTime = now;
+
+  const item = ITEMS[selectedItem];
+  const targetAvatar = getOpponentAvatarEl();
+  const count = item.multi;
+
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      throwProjectile(selectedItem, targetAvatar);
+      ws.send(JSON.stringify({ type: 'projectile', item: selectedItem }));
+    }, i * item.multiDelay);
+  }
+}
+
+document.getElementById('avatarBlack').addEventListener('click', () => {
+  if (myRole === 2) onOpponentAvatarClick();
+});
+document.getElementById('avatarWhite').addEventListener('click', () => {
+  if (myRole === 1) onOpponentAvatarClick();
+});
 
 const SoundEngine = {
   ctx: null,
@@ -1108,6 +1472,7 @@ function handleMessage(msg) {
       updateCharacterDisplay();
       updateConnection(true);
       updateRoleBadge();
+      updateOpponentTarget();
       document.getElementById('lobbyOverlay').classList.add('hidden');
       showCharacterReveal(myCharacter);
       draw();
@@ -1122,6 +1487,7 @@ function handleMessage(msg) {
       updateCharacterDisplay();
       updateConnection(true);
       updateRoleBadge();
+      updateOpponentTarget();
       document.getElementById('roomIdDisplay').textContent = '房间: ' + msg.roomId;
       document.getElementById('roomIdDisplay').classList.remove('hidden');
       document.getElementById('lobbyOverlay').classList.add('hidden');
@@ -1199,6 +1565,7 @@ function handleMessage(msg) {
     case 'opponent_disconnected':
       opponentConnected = false;
       updateConnection(false);
+      updateOpponentTarget();
       document.getElementById('connText').textContent = '对手已断开';
       SoundEngine.playDisconnect();
       break;
@@ -1207,10 +1574,15 @@ function handleMessage(msg) {
       alert(msg.message);
       break;
 
-    case 'emoji':
-      showEmojiBubble(msg.emoji);
+    case 'projectile':
+      receiveProjectile(msg.item);
       break;
   }
+}
+
+function receiveProjectile(itemType) {
+  const targetAvatar = getMyAvatarEl();
+  throwProjectile(itemType, targetAvatar);
 }
 
 function switchTab(tab) {
@@ -1565,27 +1937,6 @@ function requestRematch() {
   if (!opponentConnected) return;
   resetGame();
   ws.send(JSON.stringify({ type: 'rematch' }));
-}
-
-let lastEmojiTime = 0;
-function sendEmoji(emoji) {
-  if (!opponentConnected || myRole === null) return;
-  const now = Date.now();
-  if (now - lastEmojiTime < 1000) return;
-  lastEmojiTime = now;
-  showEmojiBubble(emoji);
-  ws.send(JSON.stringify({ type: 'emoji', emoji: emoji }));
-}
-
-function showEmojiBubble(emoji) {
-  const wrapper = document.querySelector('.board-wrapper');
-  const bubble = document.createElement('div');
-  bubble.className = 'emoji-bubble';
-  bubble.textContent = emoji;
-  wrapper.appendChild(bubble);
-  setTimeout(() => {
-    if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
-  }, 3000);
 }
 
 function createParticles() {
