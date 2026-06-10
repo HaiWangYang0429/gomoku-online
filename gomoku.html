@@ -240,12 +240,70 @@ button {
 }
 
 .win-card h2 { color: #ffd700; font-size: clamp(20px, 5vw, 32px); margin-bottom: 10px; }
-.win-card p { color: #aaa; font-size: clamp(13px, 3vw, 16px); margin-bottom: 24px; }
+.win-card p { color: #aaa; font-size: clamp(13px, 3vw, 16px); margin-bottom: 12px; }
 .win-card button {
   background: linear-gradient(135deg, #f7971e, #ffd200);
   color: #333;
   padding: 14px 48px;
   font-size: 16px;
+}
+.taunt-section {
+  border-top: 1px solid rgba(255,215,0,0.15);
+  margin: 12px 0 20px;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.taunt-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  font-size: clamp(12px, 2.5vw, 14px);
+  line-height: 1.5;
+  animation: tauntFadeIn 0.5s ease both;
+}
+.taunt-row:nth-child(1) { animation-delay: 0.1s; }
+.taunt-row:nth-child(2) { animation-delay: 0.3s; }
+.taunt-row:nth-child(3) { animation-delay: 0.5s; }
+@keyframes tauntFadeIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.taunt-row .taunt-avatar {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.taunt-row .taunt-text { color: #ccc; }
+.taunt-row .taunt-name { color: #ffd700; font-weight: 700; }
+.taunt-row.system-taunt {
+  justify-content: center;
+  text-align: center;
+  border-top: 1px dashed rgba(255,215,0,0.1);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+.taunt-row.system-taunt .taunt-text {
+  color: #e74c3c;
+  font-weight: 600;
+  font-style: italic;
+}
+.taunt-row.winner-taunt {
+  border-top: 1px dashed rgba(255,215,0,0.15);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+.taunt-row.winner-taunt .taunt-text {
+  color: #888;
+  font-style: italic;
+}
+.taunt-row.winner-taunt .taunt-label {
+  color: #666;
+  font-size: clamp(10px, 2vw, 12px);
+  display: block;
+  margin-bottom: 4px;
 }
 
 .connection-status {
@@ -1066,7 +1124,7 @@ button {
       <span class="item-name">乌龟</span>
     </button>
     <button class="item-btn" data-item="sword" onclick="selectItem('sword')">
-      <span class="item-emoji">⚔️</span>
+      <span class="item-emoji">🗡️</span>
       <span class="item-name">飞剑</span>
       <span class="item-badge">x10</span>
     </button>
@@ -1082,6 +1140,7 @@ button {
   <div class="win-card">
     <h2 id="winTitle">黑棋获胜！</h2>
     <p id="winSub">精彩的对局</p>
+    <div class="taunt-section" id="tauntSection"></div>
     <button onclick="requestRematch()">再来一局</button>
   </div>
 </div>
@@ -1117,9 +1176,115 @@ const ITEMS = {
   tomato: { emoji: '🍅', flyClass: 'flying-tomato', duration: 600, multi: 10, multiDelay: 80 },
   squid:  { emoji: '🦑', flyClass: 'flying-squid',  duration: 800, multi: 1,  multiDelay: 0 },
   turtle: { emoji: '🐢', flyClass: 'flying-turtle', duration: 1200, multi: 1, multiDelay: 0 },
-  sword:  { emoji: '⚔️', flyClass: 'flying-sword',  duration: 400, multi: 10, multiDelay: 60 },
+  sword:  { emoji: '🗡️', flyClass: 'flying-sword',  duration: 400, multi: 10, multiDelay: 60 },
   nuke:   { emoji: '☢️', flyClass: 'flying-nuke',   duration: 1500, multi: 1, multiDelay: 0 }
 };
+
+const KILL_TAUNTS = [
+'建议去挂个眼科，五颗子都看不见？',
+'你下的是五子棋，人家下的是五子连珠',
+'棋盘这么大，你偏偏选了最菜的走法',
+'AI让你九个子你都赢不了',
+'建议把棋盘吃了，以形补形',
+'你的对手已经开始打哈欠了',
+'这不叫下棋，这叫被棋下',
+'五子棋一共就赢一个条件，你都能输？',
+'下次建议带个导航，别在棋盘上迷路了',
+'对手还没发力，你就已经倒下了',
+'你下的不是棋，是寂寞',
+'这盘棋唯一的亮点，就是结束得够快',
+'你下棋的水平，跟你呼吸一样——纯属浪费资源',
+'建议把你的棋谱烧了，给对手暖暖手',
+'你对手赢了都不好意思发朋友圈，怕丢人',
+'五颗子排成一排你都拦不住，你眼睛是装饰品吗',
+'你下棋的思路和蚊子的飞行路线一样——毫无逻辑',
+'对手赢你赢得太轻松了，已经开始同情你了',
+'你这棋力，下跳棋都得让人扶着',
+'你家棋盘上的灰都比你的棋路厚',
+'你每下一步，对手都要掐自己一下确认不是在做梦',
+'建议去当天气预报员，因为你永远预测不到下一步',
+'你的棋路像Wi-Fi信号一样——时有时无，而且都很弱',
+'你下的每一步都在证明：人类确实需要AI辅助',
+'对手赛后采访：我以为是新手教学局',
+'你这盘棋唯一的战术就是：把子放上去',
+'你下棋的样子，像极了考试时瞎蒙选择题的你',
+'你输得太惨了，连裁判都想帮你下',
+'你对手复盘的时候把录屏删了，怕影响自己棋力评级',
+'你对手已经在考虑要不要让你八个子了，出于人道主义',
+'建议你下辈子当棋盘，至少能让人把子放对位置',
+'你的棋风可以用四个字概括：不存在',
+'你对手的狗看了这盘棋都会摇头',
+'你下棋的水平，让阿尔法狗都学会了怜悯',
+'建议你把眼睛捐给有需要的人，反正你留着也是摆设',
+'你对手赢了之后第一件事是删好友，怕传染',
+'五颗子连成一排你都看不见，你视网膜是按像素算钱的吗',
+'对手已经在考虑要不要直接判你负了，省得你受罪',
+'你每落一子，对手都要安慰自己：这应该不是人机吧',
+'对手：我还以为你在让我呢',
+];
+
+const SURRENDER_TAUNTS = [
+'跑得倒挺快，可惜棋盘没长腿',
+'你的棋力和你的勇气一样，都归零了',
+'投降速度堪比光速，建议申请吉尼斯',
+'认输也是一种才华，你确实天赋异禀',
+'你这局最大的贡献就是提前结束了痛苦',
+'识时务者为俊杰...吗？不，你这叫怂',
+'下次认输之前，先把棋下明白',
+'对手：我还没开始呢，你怎么就投了？',
+'你认输的姿势比下棋的姿势帅多了',
+'建议你以后下棋之前先学会不投降',
+'投降输一半，你全输了',
+'连输都不肯输完整，你这人真不实在',
+'认输速度这么快，平时没少练吧',
+'你的对手表示：就这？',
+'认输倒是认得挺利索，下棋的时候脑子怎么不这么灵光',
+'你这辈子最擅长的就是放弃，建议去参加投降锦标赛，稳拿冠军',
+'你认输的那一刻，连服务器都想把你踢下线',
+'认输按钮都被你按出包浆了吧',
+'你认输的姿势很标准，一看就是老惯犯了',
+'建议把认输键焊死在你键盘上，反正你也不配用别的键',
+'你点认输的时候，连你的鼠标都觉得丢人',
+'你最大的优点就是有自知之明，虽然来得太晚了',
+'你认输的手速拿去打游戏，至少还能当个投降流主播',
+'你对手连庆祝都懒得庆祝，你这局是有多无聊',
+'你认输认得这么熟练，让人心疼',
+'你点认输的时候，你对手甚至还在喝水，根本没当回事',
+'认输速度这么快，你是提前写好了投降书吗',
+'你投降的样子像极了上班第一天就递辞职信的你爸',
+'你认输之后，你对手的屏幕上弹出了一个通知：新手教程已完成',
+'你认输的速度已经快到对手都没来得及截图留念',
+'你人生做过最果断的决定就是认输，其他的决定都是错的',
+'认输按钮上刻着你的名字，而且是烫金的',
+'你点认输的那一刻，全世界都替你松了口气',
+'你对手已经在找下一个受害者了，毕竟你这局连热身都算不上',
+'你认输的姿势很标准——标准的loser',
+'你这辈子做过最正确的决定，就是承认自己不行',
+'你认输认得这么丝滑，一看就是从小练到大的',
+'你点认输的那一刻，连空气都松了口气',
+'建议你把"善于认输"写进简历，这确实是你唯一的技能',
+'你认输的速度，比你思考任何一步棋都快一万倍',
+];
+
+const DRAW_TAUNTS = [
+'菜得旗鼓相当，弱得不分伯仲',
+'你俩加在一起，棋力不如一个刚学会规则的五岁小孩',
+'平局说明一个真理：废物和废物之间，确实没有差距',
+'你俩不是在博弈，是在互相确认对方确实也不行',
+'平局是你俩能收到的最好礼物——因为赢，你俩都不配',
+];
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function pickSeeded(arr, seed) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  }
+  return arr[Math.abs(h) % arr.length];
+}
 
 function selectItem(type) {
   if (selectedItem === type) {
@@ -1162,30 +1327,99 @@ function throwProjectile(itemType, targetAvatarEl) {
   const targetRect = targetAvatarEl.getBoundingClientRect();
   const targetX = targetRect.left + targetRect.width / 2;
   const targetY = targetRect.top + targetRect.height / 2;
-  const startX = targetX + (Math.random() - 0.5) * 300;
-  const startY = window.innerHeight + 50;
 
   const el = document.createElement('div');
   el.className = 'flying-item ' + item.flyClass;
   el.textContent = item.emoji;
-  el.style.left = startX + 'px';
-  el.style.top = startY + 'px';
   layer.appendChild(el);
 
-  const dx = targetX - startX;
-  const dy = targetY - startY;
-  el.animate([
-    { transform: 'translate(0, 0) scale(1)', offset: 0 },
-    { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 80}px) scale(1.2)`, offset: 0.4 },
-    { transform: `translate(${dx}px, ${dy}px) scale(1)`, offset: 1 }
-  ], {
-    duration: item.duration,
-    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-    fill: 'forwards'
-  }).onfinish = () => {
-    el.remove();
-    createImpact(itemType, targetX, targetY, targetAvatarEl);
-  };
+  if (itemType === 'sword') {
+    const swordBtn = document.querySelector('[data-item="sword"]');
+    const btnRect = swordBtn.getBoundingClientRect();
+    const startX = btnRect.left + btnRect.width / 2;
+    const startY = btnRect.top + btnRect.height / 2;
+
+    const boardEl = document.getElementById('board');
+    const boardRect = boardEl.getBoundingClientRect();
+    const cx = boardRect.left + boardRect.width / 2;
+    const cy = boardRect.top + boardRect.height / 2;
+    const rx = boardRect.width / 2 + 40;
+    const ry = boardRect.height / 2 + 40;
+
+    el.style.left = '0px';
+    el.style.top = '0px';
+
+    const keyframes = [];
+    const totalSteps = 32;
+    const toBoard = 4;
+    const orbit = 24;
+    const toTarget = 4;
+
+    for (let i = 0; i <= toBoard; i++) {
+      const progress = i / toBoard;
+      const x = startX + (cx + rx - startX) * progress;
+      const y = startY + (cy - startY) * progress;
+      keyframes.push({
+        transform: `translate(${x - 22}px, ${y - 22}px) rotate(${progress * 90}deg) scale(1.1)`,
+        offset: (i * totalSteps) / (toBoard + orbit + toTarget) / totalSteps * totalSteps / totalSteps
+      });
+    }
+    keyframes[keyframes.length - 1].offset = toBoard / (toBoard + orbit + toTarget);
+
+    for (let i = 1; i <= orbit; i++) {
+      const angle = (Math.PI * 2 * i) / orbit;
+      const x = cx + rx * Math.cos(angle);
+      const y = cy + ry * Math.sin(angle);
+      const rot = 90 + (360 * i) / orbit;
+      keyframes.push({
+        transform: `translate(${x - 22}px, ${y - 22}px) rotate(${rot}deg) scale(1.1)`,
+        offset: (toBoard + i) / (toBoard + orbit + toTarget)
+      });
+    }
+
+    const orbitEndX = cx + rx;
+    const orbitEndY = cy;
+    for (let i = 1; i <= toTarget; i++) {
+      const progress = i / toTarget;
+      const x = orbitEndX + (targetX - orbitEndX) * progress;
+      const y = orbitEndY + (targetY - orbitEndY) * progress;
+      const rot = 450 + progress * 180;
+      const scale = 1.1 + progress * 0.3;
+      keyframes.push({
+        transform: `translate(${x - 22}px, ${y - 22}px) rotate(${rot}deg) scale(${scale})`,
+        offset: (toBoard + orbit + i) / (toBoard + orbit + toTarget)
+      });
+    }
+
+    el.animate(keyframes, {
+      duration: 1200,
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      fill: 'forwards'
+    }).onfinish = () => {
+      el.remove();
+      createImpact(itemType, targetX, targetY, targetAvatarEl);
+    };
+  } else {
+    const startX = targetX + (Math.random() - 0.5) * 300;
+    const startY = window.innerHeight + 50;
+    el.style.left = '0px';
+    el.style.top = '0px';
+
+    const dx = targetX - startX;
+    const dy = targetY - startY;
+    el.animate([
+      { transform: `translate(${startX - 22}px, ${startY - 22}px) scale(1)` },
+      { transform: `translate(${startX + dx * 0.5 - 22}px, ${startY + dy * 0.5 - 80 - 22}px) scale(1.2)`, offset: 0.4 },
+      { transform: `translate(${targetX - 22}px, ${targetY - 22}px) scale(1)` }
+    ], {
+      duration: item.duration,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      fill: 'forwards'
+    }).onfinish = () => {
+      el.remove();
+      createImpact(itemType, targetX, targetY, targetAvatarEl);
+    };
+  }
 }
 
 function createImpact(itemType, x, y, targetAvatarEl) {
@@ -1536,7 +1770,7 @@ function handleMessage(msg) {
     case 'surrender':
       gameOver = true;
       SoundEngine.playWin();
-      showSurrenderResult(msg.player);
+      showSurrenderResult(msg.player, msg.taunt);
       break;
 
     case 'restart_request':
@@ -1766,6 +2000,7 @@ function resetGame() {
   moveHistory = [];
   lastMove = null;
   document.getElementById('overlay').classList.remove('show');
+  document.getElementById('tauntSection').innerHTML = '';
   document.querySelectorAll('.char-speech-bubble').forEach(b => b.remove());
   draw();
   updateStatus();
@@ -1883,11 +2118,34 @@ function checkWin(r, c, player) {
   if (full) { gameOver = true; showDraw(); }
 }
 
+function getCharByRole(role) {
+  if (role === myRole) return myCharacter;
+  return opponentCharacter;
+}
+
+function buildTauntHTML(char, tauntText) {
+  if (!char || !tauntText) return '';
+  return `<div class="taunt-row"><span class="taunt-avatar">${char.emoji}</span><span class="taunt-text"><span class="taunt-name">${char.name}：</span>${tauntText}</span></div>`;
+}
+
+function buildWinnerTauntHTML(tauntText) {
+  if (!tauntText) return '';
+  return `<div class="taunt-row winner-taunt"><span class="taunt-text"><span class="taunt-label">对方已收到你的慰问：</span>${tauntText}</span></div>`;
+}
+
 function showWin(player) {
   const isMe = player === myRole;
   if (isMe) SoundEngine.playWin();
   document.getElementById('winTitle').textContent = isMe ? '🎉 你赢了！' : '😔 你输了！';
   document.getElementById('winSub').textContent = `${player === 1 ? '黑棋' : '白棋'}获得胜利！`;
+  const winnerChar = getCharByRole(player);
+  const seed = lastMove ? `${lastMove.r}_${lastMove.c}_${player}` : `${player}`;
+  const tauntText = pickSeeded(KILL_TAUNTS, seed);
+  if (isMe) {
+    document.getElementById('tauntSection').innerHTML = buildWinnerTauntHTML(tauntText);
+  } else {
+    document.getElementById('tauntSection').innerHTML = buildTauntHTML(winnerChar, tauntText);
+  }
   document.getElementById('overlay').classList.add('show');
   updateStatus();
 }
@@ -1895,17 +2153,27 @@ function showWin(player) {
 function showDraw() {
   document.getElementById('winTitle').textContent = '🤝 平局！';
   document.getElementById('winSub').textContent = '势均力敌，再来一局！';
+  const seed = lastMove ? `${lastMove.r}_${lastMove.c}` : 'draw';
+  const tauntText = pickSeeded(DRAW_TAUNTS, seed);
+  document.getElementById('tauntSection').innerHTML = buildTauntHTML(myCharacter, tauntText);
   document.getElementById('overlay').classList.add('show');
   updateStatus();
 }
 
-function showSurrenderResult(surrenderPlayer) {
+function showSurrenderResult(surrenderPlayer, tauntText) {
   const isMe = surrenderPlayer === myRole;
   const winner = surrenderPlayer === 1 ? 2 : 1;
   document.getElementById('winTitle').textContent = isMe ? '🏳️ 你认输了' : '🎉 对手认输了！';
   document.getElementById('winSub').textContent = isMe
-    ? '胜败乃兵家常事，再来一局！'
+    ? ''
     : `${winner === 1 ? '黑棋' : '白棋'}获得胜利！`;
+  const text = tauntText || pickRandom(SURRENDER_TAUNTS);
+  const winnerChar = getCharByRole(winner);
+  if (isMe) {
+    document.getElementById('tauntSection').innerHTML = buildTauntHTML(winnerChar, text);
+  } else {
+    document.getElementById('tauntSection').innerHTML = buildWinnerTauntHTML(text);
+  }
   document.getElementById('overlay').classList.add('show');
   updateStatus();
 }
@@ -1914,8 +2182,9 @@ function requestSurrender() {
   if (gameOver || !opponentConnected || myRole === null) return;
   showConfirm('确定要认输吗？', () => {
     gameOver = true;
-    ws.send(JSON.stringify({ type: 'surrender', player: myRole }));
-    showSurrenderResult(myRole);
+    const tauntText = pickRandom(SURRENDER_TAUNTS);
+    ws.send(JSON.stringify({ type: 'surrender', player: myRole, taunt: tauntText }));
+    showSurrenderResult(myRole, tauntText);
   });
 }
 
