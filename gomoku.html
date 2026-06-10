@@ -589,6 +589,209 @@ button {
   animation: emojiFloat 3s ease-out forwards;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
+
+.character-panel {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 14px);
+  padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.1);
+  position: relative;
+  min-width: 140px;
+  transition: all 0.3s;
+}
+.character-panel.active-turn {
+  border-color: rgba(255,255,255,0.15);
+}
+.character-avatar {
+  font-size: clamp(28px, 6vw, 40px);
+  line-height: 1;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(44px, 9vw, 60px);
+  height: clamp(44px, 9vw, 60px);
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.character-panel.active-turn .character-avatar::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #ffd700;
+  animation: borderOrbit 1.2s linear infinite;
+  pointer-events: none;
+}
+@keyframes borderOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.character-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.character-name {
+  color: #ffd700;
+  font-size: clamp(12px, 2.5vw, 15px);
+  font-weight: 700;
+}
+.character-title {
+  color: #888;
+  font-size: clamp(10px, 2vw, 12px);
+}
+.character-panel.active-turn .character-name {
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,215,0,0.5);
+}
+
+.avatar-play {
+  animation: avatarPlay 0.6s ease;
+}
+@keyframes avatarPlay {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.2); }
+  50% { transform: rotate(10deg) scale(1.15); }
+  75% { transform: rotate(-5deg) scale(1.05); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.char-speech-bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #ffd700;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: clamp(12px, 2.5vw, 14px);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 60;
+  animation: speechIn 0.3s ease, speechOut 0.3s ease 2s forwards;
+  border: 1px solid rgba(255,215,0,0.3);
+}
+.char-speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0,0,0,0.85);
+}
+@keyframes speechIn {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.8); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes speechOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.char-reveal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 400;
+  animation: revealFadeIn 0.4s ease;
+  padding: 20px;
+}
+@keyframes revealFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.char-reveal-overlay.fade-out {
+  animation: revealFadeOut 0.5s ease forwards;
+}
+@keyframes revealFadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.char-reveal-card {
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 24px;
+  padding: clamp(30px, 8vw, 50px) clamp(40px, 10vw, 80px);
+  text-align: center;
+  box-shadow: 0 0 80px rgba(255, 215, 0, 0.15), 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: cardSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  max-width: 400px;
+  width: 100%;
+}
+@keyframes cardSlideIn {
+  0% { transform: translateY(60px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.char-reveal-emoji {
+  font-size: clamp(60px, 16vw, 100px);
+  line-height: 1;
+  margin-bottom: 16px;
+  animation: emojiRevealPulse 0.6s ease 0.3s both;
+}
+@keyframes emojiRevealPulse {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.char-reveal-title {
+  color: #888;
+  font-size: clamp(12px, 3vw, 15px);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  animation: textFadeIn 0.4s ease 0.2s both;
+}
+.char-reveal-name {
+  color: #ffd700;
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  animation: textFadeIn 0.4s ease 0.35s both;
+}
+@keyframes textFadeIn {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.char-reveal-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+  margin: 0 auto 20px;
+  animation: textFadeIn 0.4s ease 0.5s both;
+}
+.char-reveal-line {
+  color: #ccc;
+  font-size: clamp(14px, 3.5vw, 18px);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 1px;
+  animation: textFadeIn 0.4s ease 0.6s both;
+}
+.char-reveal-hint {
+  color: #555;
+  font-size: clamp(11px, 2.5vw, 13px);
+  margin-top: 30px;
+  animation: textFadeIn 0.4s ease 0.8s both;
+}
 @keyframes emojiFloat {
   0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
   15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
@@ -697,14 +900,20 @@ button {
   <h1>五 子 棋</h1>
 
   <div class="info-bar">
-    <div class="player-tag black" id="tagBlack">
-      <span class="stone-icon black"></span>
-      <span>黑棋</span>
+    <div class="character-panel" id="panelBlack">
+      <div class="character-avatar" id="avatarBlack">♟️</div>
+      <div class="character-info">
+        <div class="character-name" id="nameBlack">黑棋</div>
+        <div class="character-title" id="titleBlack">等待中...</div>
+      </div>
     </div>
     <div id="status">等待连接...</div>
-    <div class="player-tag white" id="tagWhite">
-      <span class="stone-icon white"></span>
-      <span>白棋</span>
+    <div class="character-panel" id="panelWhite">
+      <div class="character-avatar" id="avatarWhite">♟️</div>
+      <div class="character-info">
+        <div class="character-name" id="nameWhite">白棋</div>
+        <div class="character-title" id="titleWhite">等待中...</div>
+      </div>
     </div>
   </div>
 
@@ -760,6 +969,8 @@ let lastMove = null;
 let ws = null;
 let roomId = '';
 let selectedRole = 1;
+let myCharacter = null;
+let opponentCharacter = null;
 
 const SoundEngine = {
   ctx: null,
@@ -887,25 +1098,34 @@ function connectServer() {
 function handleMessage(msg) {
   switch (msg.type) {
     case 'room_created':
+      myCharacter = msg.character;
       showRoomCreated(msg.roomId, msg.role);
       break;
 
     case 'guest_joined':
       opponentConnected = true;
+      opponentCharacter = msg.opponentCharacter;
+      updateCharacterDisplay();
       updateConnection(true);
+      updateRoleBadge();
       document.getElementById('lobbyOverlay').classList.add('hidden');
+      showCharacterReveal(myCharacter);
       draw();
       updateStatus();
       break;
 
     case 'room_joined':
       myRole = msg.role;
+      myCharacter = msg.character;
+      opponentCharacter = msg.opponentCharacter;
       opponentConnected = true;
+      updateCharacterDisplay();
       updateConnection(true);
       updateRoleBadge();
       document.getElementById('roomIdDisplay').textContent = '房间: ' + msg.roomId;
       document.getElementById('roomIdDisplay').classList.remove('hidden');
       document.getElementById('lobbyOverlay').classList.add('hidden');
+      showCharacterReveal(myCharacter);
       draw();
       updateStatus();
       break;
@@ -918,6 +1138,7 @@ function handleMessage(msg) {
       draw();
       updateStatus();
       SoundEngine.playStone();
+      triggerCharacterPlay(msg.player);
       checkWin(msg.r, msg.c, msg.player);
       break;
 
@@ -1059,8 +1280,10 @@ function copyCode() {
 
 function updateRoleBadge() {
   const badge = document.getElementById('roleBadge');
+  if (!myCharacter) return;
   badge.className = myRole === 1 ? 'role-badge p1' : 'role-badge p2';
-  badge.textContent = myRole === 1 ? '你是：黑棋（先手）' : '你是：白棋（后手）';
+  const stone = myRole === 1 ? '黑棋' : '白棋';
+  badge.textContent = '你是：' + myCharacter.name + '（' + stone + '）';
 }
 
 function updateConnection(online) {
@@ -1071,14 +1294,101 @@ function updateConnection(online) {
 
 function updateStatus() {
   const el = document.getElementById('status');
-  const tagB = document.getElementById('tagBlack');
-  const tagW = document.getElementById('tagWhite');
-  if (gameOver) { el.textContent = ''; tagB.classList.remove('active'); tagW.classList.remove('active'); return; }
+  const panelB = document.getElementById('panelBlack');
+  const panelW = document.getElementById('panelWhite');
+  if (gameOver) { el.textContent = ''; panelB.classList.remove('active-turn'); panelW.classList.remove('active-turn'); return; }
+  el.textContent = '';
   if (currentTurn === 1) {
-    el.textContent = '黑棋落子'; tagB.classList.add('active'); tagW.classList.remove('active');
+    panelB.classList.add('active-turn'); panelW.classList.remove('active-turn');
   } else {
-    el.textContent = '白棋落子'; tagW.classList.add('active'); tagB.classList.remove('active');
+    panelW.classList.add('active-turn'); panelB.classList.remove('active-turn');
   }
+}
+
+function updateCharacterDisplay() {
+  if (myRole === 1) {
+    if (myCharacter) {
+      document.getElementById('avatarBlack').textContent = myCharacter.emoji;
+      document.getElementById('nameBlack').textContent = myCharacter.name;
+      document.getElementById('titleBlack').textContent = myCharacter.title;
+    }
+    if (opponentCharacter) {
+      document.getElementById('avatarWhite').textContent = opponentCharacter.emoji;
+      document.getElementById('nameWhite').textContent = opponentCharacter.name;
+      document.getElementById('titleWhite').textContent = opponentCharacter.title;
+    }
+  } else {
+    if (opponentCharacter) {
+      document.getElementById('avatarBlack').textContent = opponentCharacter.emoji;
+      document.getElementById('nameBlack').textContent = opponentCharacter.name;
+      document.getElementById('titleBlack').textContent = opponentCharacter.title;
+    }
+    if (myCharacter) {
+      document.getElementById('avatarWhite').textContent = myCharacter.emoji;
+      document.getElementById('nameWhite').textContent = myCharacter.name;
+      document.getElementById('titleWhite').textContent = myCharacter.title;
+    }
+  }
+}
+
+function triggerCharacterPlay(player) {
+  const panelId = player === 1 ? 'panelBlack' : 'panelWhite';
+  const avatarId = player === 1 ? 'avatarBlack' : 'avatarWhite';
+  const panel = document.getElementById(panelId);
+  const avatar = document.getElementById(avatarId);
+
+  avatar.classList.remove('avatar-play');
+  void avatar.offsetWidth;
+  avatar.classList.add('avatar-play');
+
+  setTimeout(() => {
+    avatar.classList.remove('avatar-play');
+  }, 600);
+
+  if (Math.random() < 0.25) {
+    const char = player === myRole ? myCharacter : opponentCharacter;
+    if (char && char.lines && char.lines.length > 0) {
+      const line = char.lines[Math.floor(Math.random() * char.lines.length)];
+      showCharacterSpeech(panel, line);
+    }
+  }
+}
+
+function showCharacterSpeech(panel, text) {
+  const existing = panel.querySelector('.char-speech-bubble');
+  if (existing) existing.remove();
+
+  const bubble = document.createElement('div');
+  bubble.className = 'char-speech-bubble';
+  bubble.textContent = text;
+  panel.appendChild(bubble);
+
+  setTimeout(() => {
+    if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+  }, 2500);
+}
+
+function showCharacterReveal(character) {
+  const randomLine = character.lines[Math.floor(Math.random() * character.lines.length)];
+  const overlay = document.createElement('div');
+  overlay.className = 'char-reveal-overlay';
+  overlay.innerHTML = `
+    <div class="char-reveal-card">
+      <div class="char-reveal-emoji">${character.emoji}</div>
+      <div class="char-reveal-title">${character.title}</div>
+      <div class="char-reveal-name">${character.name}</div>
+      <div class="char-reveal-divider"></div>
+      <div class="char-reveal-line">"${randomLine}"</div>
+    </div>
+    <div class="char-reveal-hint">点击任意处关闭</div>
+  `;
+  document.body.appendChild(overlay);
+  const dismiss = () => {
+    overlay.classList.add('fade-out');
+    setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500);
+  };
+  overlay.addEventListener('click', dismiss);
+  setTimeout(dismiss, 3000);
 }
 
 function resetGame() {
@@ -1088,6 +1398,7 @@ function resetGame() {
   moveHistory = [];
   lastMove = null;
   document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.char-speech-bubble').forEach(b => b.remove());
   draw();
   updateStatus();
   SoundEngine.playRestart();
@@ -1176,6 +1487,8 @@ canvas.addEventListener('click', (e) => {
   ws.send(JSON.stringify({ type: 'move', r, c, player: myRole }));
   draw();
   updateStatus();
+  SoundEngine.playStone();
+  triggerCharacterPlay(myRole);
   checkWin(r, c, myRole);
 });
 
