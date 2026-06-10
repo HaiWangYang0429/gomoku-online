@@ -1138,7 +1138,7 @@ function handleMessage(msg) {
       draw();
       updateStatus();
       SoundEngine.playStone();
-      triggerCharacterPlay(msg.player);
+      triggerCharacterPlay(msg.player, msg.line);
       checkWin(msg.r, msg.c, msg.player);
       break;
 
@@ -1331,7 +1331,7 @@ function updateCharacterDisplay() {
   }
 }
 
-function triggerCharacterPlay(player) {
+function triggerCharacterPlay(player, line) {
   const panelId = player === 1 ? 'panelBlack' : 'panelWhite';
   const avatarId = player === 1 ? 'avatarBlack' : 'avatarWhite';
   const panel = document.getElementById(panelId);
@@ -1345,12 +1345,8 @@ function triggerCharacterPlay(player) {
     avatar.classList.remove('avatar-play');
   }, 600);
 
-  if (Math.random() < 0.25) {
-    const char = player === myRole ? myCharacter : opponentCharacter;
-    if (char && char.lines && char.lines.length > 0) {
-      const line = char.lines[Math.floor(Math.random() * char.lines.length)];
-      showCharacterSpeech(panel, line);
-    }
+  if (line) {
+    showCharacterSpeech(panel, line);
   }
 }
 
@@ -1484,11 +1480,15 @@ canvas.addEventListener('click', (e) => {
   moveHistory.push({ r, c, player: myRole });
   lastMove = { r, c };
   currentTurn = myRole === 1 ? 2 : 1;
-  ws.send(JSON.stringify({ type: 'move', r, c, player: myRole }));
+  let speechLine = null;
+  if (Math.random() < 0.25 && myCharacter && myCharacter.lines.length > 0) {
+    speechLine = myCharacter.lines[Math.floor(Math.random() * myCharacter.lines.length)];
+  }
+  ws.send(JSON.stringify({ type: 'move', r, c, player: myRole, line: speechLine }));
   draw();
   updateStatus();
   SoundEngine.playStone();
-  triggerCharacterPlay(myRole);
+  triggerCharacterPlay(myRole, speechLine);
   checkWin(r, c, myRole);
 });
 
