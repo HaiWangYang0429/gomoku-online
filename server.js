@@ -109,7 +109,7 @@ wss.on('connection', (ws) => {
 
         console.log(`玩家加入房间 ${roomId}，选择 ${currentRole === 1 ? '黑棋' : '白棋'}`);
       }
-      else if (msg.type === 'move' || msg.type === 'undo_request' || msg.type === 'undo_done' ||
+      else if (msg.type === 'move' || msg.type === 'undo_request' || msg.type === 'undo_done' || msg.type === 'undo_rejected' ||
                msg.type === 'restart_request' || msg.type === 'restart_done' || msg.type === 'restart_rejected' ||
                msg.type === 'surrender' || msg.type === 'projectile' || msg.type === 'rematch') {
         if (!currentRoom || !rooms.has(currentRoom)) {
