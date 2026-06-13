@@ -51,52 +51,6 @@ h1 {
   justify-content: center;
 }
 
-.player-tag {
-  display: flex;
-  align-items: center;
-  gap: clamp(4px, 1.5vw, 10px);
-  padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 24px);
-  border-radius: 40px;
-  font-size: clamp(12px, 2.5vw, 16px);
-  font-weight: 600;
-  color: #fff;
-  transition: all 0.3s;
-}
-
-.player-tag.black {
-  background: linear-gradient(135deg, #2d2d2d, #555);
-  border: 2px solid #666;
-}
-
-.player-tag.white {
-  background: linear-gradient(135deg, #e8e8e8, #fff);
-  border: 2px solid #ccc;
-  color: #333;
-}
-
-.player-tag.active {
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-  border-color: gold;
-  transform: scale(1.08);
-}
-
-.stone-icon {
-  width: clamp(14px, 3vw, 22px);
-  height: clamp(14px, 3vw, 22px);
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.stone-icon.black {
-  background: radial-gradient(circle at 35% 35%, #555, #111);
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-}
-
-.stone-icon.white {
-  background: radial-gradient(circle at 35% 35%, #fff, #ccc);
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-}
-
 #status {
   font-size: clamp(14px, 3vw, 20px);
   color: #ffd700;
@@ -170,7 +124,7 @@ button {
 .role-badge {
   position: fixed;
   top: 10px;
-  right: 10px;
+  right: 56px;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: clamp(10px, 2vw, 14px);
@@ -599,8 +553,9 @@ button {
   .container { gap: 10px; padding: 10px; }
   .board-wrapper { padding: 8px; }
   canvas {
-    width: calc(100vw - 36px);
-    height: calc(100vw - 36px);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
   .btn-row { gap: 6px; }
   button { padding: 8px 16px; font-size: 12px; letter-spacing: 1px; }
@@ -683,14 +638,8 @@ button {
   75% { transform: translateY(15px) rotate(-10deg); }
 }
 @keyframes flyFlip { from { transform: rotateY(0deg); } to { transform: rotateY(720deg); } }
-@keyframes flyStreak {
-  0% { transform: scaleX(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
-  50% { transform: scaleX(2); filter: drop-shadow(0 0 12px rgba(255,255,255,0.9)); }
-  100% { transform: scaleX(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
-}
 @keyframes flyPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
 
-.impact { position: absolute; pointer-events: none; z-index: 502; }
 .impact-particle {
   position: absolute;
   border-radius: 50%;
@@ -708,17 +657,6 @@ button {
 @keyframes splatExpand {
   0% { transform: translate(-50%,-50%) scale(0); opacity:0.9; }
   100% { transform: translate(-50%,-50%) scale(3); opacity:0; }
-}
-.impact-ink {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(20,20,40,0.85), rgba(40,40,80,0.4), transparent);
-  animation: inkSpread 1.5s ease-out forwards;
-}
-@keyframes inkSpread {
-  0% { transform: translate(-50%,-50%) scale(0); opacity:1; }
-  60% { transform: translate(-50%,-50%) scale(2.5); opacity:0.5; }
-  100% { transform: translate(-50%,-50%) scale(3.5); opacity:0; }
 }
 .impact-slash {
   position: absolute;
@@ -770,6 +708,165 @@ button {
   60% { transform: scale(1.15) rotate(5deg); }
   100% { transform: scale(1) rotate(0); }
 }
+
+.settings-btn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #ffd700;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+}
+.settings-btn:hover { background: rgba(255,255,255,0.15); transform: rotate(30deg); }
+
+.settings-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.settings-overlay.show { display: flex; }
+
+.settings-panel {
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(360px, 90vw);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.settings-panel h3 {
+  color: #ffd700;
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: 4px;
+}
+.settings-section {
+  margin-bottom: 20px;
+}
+.settings-section-title {
+  color: #aaa;
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.03);
+}
+.theme-option:hover { border-color: rgba(255,215,0,0.3); background: rgba(255,255,255,0.06); }
+.theme-option.active { border-color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 12px rgba(255,215,0,0.2); }
+.theme-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.theme-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60%; height: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+}
+.theme-preview::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 1px; height: 60%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+}
+.theme-name {
+  font-size: 11px;
+  color: #ccc;
+}
+.theme-option.active .theme-name { color: #ffd700; }
+
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.sound-toggle-label {
+  color: #ccc;
+  font-size: 14px;
+}
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: #444;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.toggle-switch.on { background: #27ae60; }
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.3s;
+}
+.toggle-switch.on::after { transform: translateX(20px); }
+.settings-close {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.settings-close:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(247,151,30,0.4); }
 .character-panel.opponent-target .character-avatar {
   cursor: pointer;
 }
@@ -1129,8 +1226,8 @@ button {
       <span class="item-badge">x10</span>
     </button>
     <button class="item-btn" data-item="nuke" onclick="selectItem('nuke')">
-      <span class="item-emoji">☢️</span>
-      <span class="item-name">原子弹</span>
+      <span class="item-emoji">💣</span>
+      <span class="item-name">炸弹</span>
     </button>
   </div>
   <div class="item-hint">选择道具后，点击对方头像投掷</div>
@@ -1142,6 +1239,29 @@ button {
     <p id="winSub">精彩的对局</p>
     <div class="taunt-section" id="tauntSection"></div>
     <button onclick="requestRematch()">再来一局</button>
+  </div>
+</div>
+
+<button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-panel">
+    <h3>设 置</h3>
+
+    <div class="settings-section">
+      <div class="settings-section-title">棋盘主题</div>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">音效</div>
+      <div class="sound-toggle">
+        <span class="sound-toggle-label">游戏音效</span>
+        <div class="toggle-switch" id="soundToggle" onclick="toggleSound()"></div>
+      </div>
+    </div>
+
+    <button class="settings-close" onclick="toggleSettings()">关 闭</button>
   </div>
 </div>
 
@@ -1171,6 +1291,41 @@ let myCharacter = null;
 let opponentCharacter = null;
 let selectedItem = null;
 let lastProjectileTime = 0;
+
+const BOARD_THEMES = {
+  classic: {
+    name: '经典原木', bg: '#d4a54a', line: '#8b6914', dot: '#8b6914',
+    wrapperBg: 'linear-gradient(145deg, #c6943e, #dbb060)',
+    preview: '#d4a54a'
+  },
+  rosewood: {
+    name: '紫檀棋板', bg: '#6b2d3e', line: '#3a1520', dot: '#3a1520',
+    wrapperBg: 'linear-gradient(145deg, #4a1e2b, #7d3548)',
+    preview: '#6b2d3e'
+  },
+  bamboo: {
+    name: '竹纹棋板', bg: '#a8c686', line: '#4a6b2a', dot: '#4a6b2a',
+    wrapperBg: 'linear-gradient(145deg, #7a9a5a, #b8d696)',
+    preview: '#a8c686'
+  },
+  marble: {
+    name: '大理石', bg: '#e8e0d4', line: '#6b6358', dot: '#6b6358',
+    wrapperBg: 'linear-gradient(145deg, #c8c0b4, #f0e8dc)',
+    preview: '#e8e0d4'
+  },
+  obsidian: {
+    name: '黑曜石', bg: '#2a2a35', line: '#555568', dot: '#7777a0',
+    wrapperBg: 'linear-gradient(145deg, #1a1a25, #3a3a48)',
+    preview: '#2a2a35'
+  },
+  jade: {
+    name: '玉石棋板', bg: '#5a9a7a', line: '#2a5a40', dot: '#2a5a40',
+    wrapperBg: 'linear-gradient(145deg, #4a8a6a, #6aaa8a)',
+    preview: '#5a9a7a'
+  }
+};
+let currentTheme = localStorage.getItem('gomoku_theme') || 'classic';
+let soundEnabled = localStorage.getItem('gomoku_sound') !== 'false';
 let lobbyAction = null;
 let lobbyTimeout = null;
 let createRetryCount = 0;
@@ -1184,7 +1339,7 @@ const ITEMS = {
   squid:  { emoji: '🦑', flyClass: 'flying-squid',  duration: 800, multi: 1,  multiDelay: 0 },
   turtle: { emoji: '🐢', flyClass: 'flying-turtle', duration: 1200, multi: 1, multiDelay: 0 },
   sword:  { emoji: '🗡️', flyClass: 'flying-sword',  duration: 400, multi: 10, multiDelay: 60 },
-  nuke:   { emoji: '☢️', flyClass: 'flying-nuke',   duration: 1500, multi: 1, multiDelay: 0 }
+  nuke:   { emoji: '💣', flyClass: 'flying-nuke',   duration: 1500, multi: 1, multiDelay: 0 }
 };
 
 const KILL_TAUNTS = [
@@ -1356,7 +1511,7 @@ function throwProjectile(itemType, targetAvatarEl) {
     el.style.left = '0px';
     el.style.top = '0px';
 
-    const TIP_OFFSET = 45;
+    const TIP_OFFSET = 225;
 
     function pointTip(tx, ty, fromX, fromY) {
       return Math.atan2(ty - fromY, tx - fromX) * 180 / Math.PI + TIP_OFFSET;
@@ -1440,6 +1595,29 @@ function throwProjectile(itemType, targetAvatarEl) {
   }
 }
 
+function createGhostImpact(x, y, emoji, glowColor, ringColor) {
+  const layer = document.getElementById('projectileLayer');
+  const ghost = document.createElement('div');
+  ghost.style.cssText = `position:absolute;left:${x}px;top:${y}px;font-size:360px;line-height:1;pointer-events:none;z-index:503;transform:translate(-50%,-50%) scale(0.3);opacity:0.85;filter:drop-shadow(0 0 30px ${glowColor});transition:none;`;
+  ghost.textContent = emoji;
+  layer.appendChild(ghost);
+  ghost.animate([
+    { transform: 'translate(-50%,-50%) scale(0.3)', opacity: 0.85 },
+    { transform: 'translate(-50%,-50%) scale(1.5)', opacity: 0.9, offset: 0.3 },
+    { transform: 'translate(-50%,-50%) scale(1.4)', opacity: 0, offset: 1 }
+  ], { duration: 2500, easing: 'ease-out', fill: 'forwards' }).onfinish = () => ghost.remove();
+  for (let i = 0; i < 8; i++) {
+    const ring = document.createElement('div');
+    ring.className = 'impact-shockwave';
+    ring.style.cssText = `left:${x}px;top:${y}px;animation-delay:${i * 0.08}s;border-color:${ringColor};`;
+    ring.style.position = 'absolute';
+    layer.appendChild(ring);
+    setTimeout(() => ring.remove(), 1000);
+  }
+  document.body.classList.add('screen-shake');
+  setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+}
+
 function createImpact(itemType, x, y, targetAvatarEl) {
   const layer = document.getElementById('projectileLayer');
 
@@ -1471,112 +1649,11 @@ function createImpact(itemType, x, y, targetAvatarEl) {
       break;
     }
     case 'squid': {
-      if (targetAvatarEl) {
-        const avatarRect = targetAvatarEl.getBoundingClientRect();
-        const layerRect = layer.getBoundingClientRect();
-        const inkX = avatarRect.left - layerRect.left + avatarRect.width / 2;
-        const inkY = avatarRect.top - layerRect.top + avatarRect.height / 2;
-        const squidSize = Math.max(avatarRect.width, avatarRect.height) * 3.3;
-
-        const squidSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        squidSvg.setAttribute('viewBox', '0 0 200 280');
-        squidSvg.setAttribute('width', squidSize);
-        squidSvg.setAttribute('height', squidSize * 1.4);
-        squidSvg.style.cssText = `position:absolute;left:${inkX}px;top:${inkY}px;transform:translate(-50%,-50%) scale(0.3);opacity:0;pointer-events:none;z-index:503;filter:drop-shadow(0 0 15px rgba(10,10,30,0.7));overflow:visible;`;
-        squidSvg.innerHTML = `
-          <defs>
-            <radialGradient id="inkGrad" cx="50%" cy="35%" r="60%">
-              <stop offset="0%" stop-color="#1a1a2e"/>
-              <stop offset="50%" stop-color="#0d0d1a"/>
-              <stop offset="100%" stop-color="#050510"/>
-            </radialGradient>
-          </defs>
-          <g fill="url(#inkGrad)">
-            <ellipse cx="100" cy="70" rx="55" ry="65"/>
-            <ellipse cx="100" cy="30" rx="35" ry="30"/>
-            <path d="M60,100 Q40,140 25,190 Q20,210 35,200 Q50,185 65,150 Z" opacity="0.9"/>
-            <path d="M75,110 Q60,160 50,220 Q48,240 60,225 Q72,200 80,155 Z" opacity="0.9"/>
-            <path d="M95,115 Q88,170 85,240 Q84,260 96,245 Q100,220 100,165 Z" opacity="0.9"/>
-            <path d="M105,115 Q112,170 115,240 Q116,260 104,245 Q100,220 100,165 Z" opacity="0.9"/>
-            <path d="M125,110 Q140,160 150,220 Q152,240 140,225 Q128,200 120,155 Z" opacity="0.9"/>
-            <path d="M140,100 Q160,140 175,190 Q180,210 165,200 Q150,185 135,150 Z" opacity="0.9"/>
-            <path d="M80,105 Q55,155 30,230 Q25,250 45,235 Q65,210 78,160 Z" opacity="0.7"/>
-            <path d="M120,105 Q145,155 170,230 Q175,250 155,235 Q135,210 122,160 Z" opacity="0.7"/>
-            <circle cx="82" cy="55" r="10" fill="#050510"/>
-            <circle cx="118" cy="55" r="10" fill="#050510"/>
-            <circle cx="82" cy="53" r="4" fill="#1a1a3e" opacity="0.5"/>
-            <circle cx="118" cy="53" r="4" fill="#1a1a3e" opacity="0.5"/>
-          </g>
-        `;
-        layer.appendChild(squidSvg);
-
-        squidSvg.animate([
-          { transform: 'translate(-50%,-50%) scale(0.3)', opacity: 0 },
-          { transform: 'translate(-50%,-50%) scale(1)', opacity: 0.95, offset: 0.12 },
-          { transform: 'translate(-50%,-50%) scale(1.05)', opacity: 0.95, offset: 0.2 },
-          { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 },
-        ], {
-          duration: 2500,
-          easing: 'linear',
-          fill: 'forwards'
-        }).onfinish = () => squidSvg.remove();
-
-        for (let i = 0; i < 8; i++) {
-          const drip = document.createElement('div');
-          const dripAngle = Math.PI * 0.3 + (Math.PI * 0.4 * i) / 7;
-          const dripDist = squidSize * 0.25 + Math.random() * 15;
-          const dripX = inkX + Math.cos(dripAngle) * dripDist * 0.6 * (Math.random() > 0.5 ? 1 : -1);
-          const dripY = inkY + squidSize * 0.3 + Math.random() * 20;
-          drip.style.cssText = `position:absolute;left:${dripX}px;top:${dripY}px;width:${5+Math.random()*8}px;height:${8+Math.random()*16}px;border-radius:50% 50% 50% 50% / 30% 30% 70% 70%;background:#0d0d1a;opacity:0;pointer-events:none;z-index:503;`;
-          layer.appendChild(drip);
-          drip.animate([
-            { transform: 'translate(-50%,-50%) scale(0)', opacity: 0 },
-            { transform: 'translate(-50%,-50%) scale(1)', opacity: 0.85, offset: 0.18 },
-            { transform: `translate(-50%, ${20+Math.random()*50}px) scale(0.5)`, opacity: 0 },
-          ], {
-            duration: 2500,
-            easing: 'linear',
-            fill: 'forwards',
-            delay: 100 + i * 80
-          }).onfinish = () => drip.remove();
-        }
-      }
-      for (let i = 0; i < 8; i++) {
-        const p = document.createElement('div');
-        p.className = 'impact-particle';
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 20 + Math.random() * 30;
-        p.style.cssText = `left:${x}px;top:${y}px;width:${3+Math.random()*5}px;height:${3+Math.random()*5}px;background:${['#1a1a3e','#2c3e50','#0d0d2b'][Math.floor(Math.random()*3)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
-        p.style.position = 'absolute';
-        layer.appendChild(p);
-        setTimeout(() => p.remove(), 600);
-      }
+      createGhostImpact(x, y, '🦑', 'rgba(26,26,46,0.8)', 'rgba(26,26,46,0.5)');
       break;
     }
     case 'turtle': {
-      const ghost = document.createElement('div');
-      ghost.style.cssText = `position:absolute;left:${x}px;top:${y}px;font-size:360px;line-height:1;pointer-events:none;z-index:503;transform:translate(-50%,-50%) scale(0.3);opacity:0.85;filter:drop-shadow(0 0 30px rgba(39,174,96,0.6));transition:none;`;
-      ghost.textContent = '🐢';
-      layer.appendChild(ghost);
-      ghost.animate([
-        { transform: 'translate(-50%,-50%) scale(0.3)', opacity: 0.85 },
-        { transform: 'translate(-50%,-50%) scale(1.5)', opacity: 0.9, offset: 0.3 },
-        { transform: 'translate(-50%,-50%) scale(1.4)', opacity: 0, offset: 1 }
-      ], {
-        duration: 2500,
-        easing: 'ease-out',
-        fill: 'forwards'
-      }).onfinish = () => ghost.remove();
-      for (let i = 0; i < 8; i++) {
-        const ring = document.createElement('div');
-        ring.className = 'impact-shockwave';
-        ring.style.cssText = `left:${x}px;top:${y}px;animation-delay:${i * 0.08}s;border-color:rgba(39,174,96,0.5);`;
-        ring.style.position = 'absolute';
-        layer.appendChild(ring);
-        setTimeout(() => ring.remove(), 1000);
-      }
-      document.body.classList.add('screen-shake');
-      setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+      createGhostImpact(x, y, '🐢', 'rgba(39,174,96,0.6)', 'rgba(39,174,96,0.5)');
       break;
     }
     case 'sword': {
@@ -1595,8 +1672,7 @@ function createImpact(itemType, x, y, targetAvatarEl) {
         spark.className = 'impact-particle';
         const angle = Math.random() * Math.PI * 2;
         const dist = 20 + Math.random() * 30;
-        spark.style.cssText = `left:${x}px;top:${y}px;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${['#ffd700','#fff','#f39c12'][Math.floor(Math.random()*3)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
-        spark.style.position = 'absolute';
+        spark.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${['#ffd700','#fff','#f39c12'][Math.floor(Math.random()*3)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
         layer.appendChild(spark);
         setTimeout(() => spark.remove(), 600);
       }
@@ -1610,8 +1686,7 @@ function createImpact(itemType, x, y, targetAvatarEl) {
       for (let i = 0; i < 3; i++) {
         const wave = document.createElement('div');
         wave.className = 'impact-shockwave';
-        wave.style.cssText = `left:${x}px;top:${y}px;animation-delay:${i*0.2}s;`;
-        wave.style.position = 'absolute';
+        wave.style.cssText = `position:absolute;left:${x}px;top:${y}px;animation-delay:${i*0.2}s;`;
         layer.appendChild(wave);
         setTimeout(() => wave.remove(), 1200);
       }
@@ -1620,8 +1695,7 @@ function createImpact(itemType, x, y, targetAvatarEl) {
         p.className = 'impact-particle';
         const angle = Math.random() * Math.PI * 2;
         const dist = 30 + Math.random() * 60;
-        p.style.cssText = `left:${x}px;top:${y}px;width:${5+Math.random()*10}px;height:${5+Math.random()*10}px;background:${['#ff6b35','#ff4444','#ffd700','#ff8c00','#fff'][Math.floor(Math.random()*5)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${0.6+Math.random()*0.4}s;`;
-        p.style.position = 'absolute';
+        p.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${5+Math.random()*10}px;height:${5+Math.random()*10}px;background:${['#ff6b35','#ff4444','#ffd700','#ff8c00','#fff'][Math.floor(Math.random()*5)]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${0.6+Math.random()*0.4}s;`;
         layer.appendChild(p);
         setTimeout(() => p.remove(), 1000);
       }
@@ -1666,7 +1740,7 @@ const SoundEngine = {
     this.initialized = true;
   },
   playStone() {
-    if (!this.ctx) return;
+    if (!soundEnabled || !this.ctx) return;
     const t = this.ctx.currentTime;
     const bufferSize = this.ctx.sampleRate * 0.05;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -1698,7 +1772,7 @@ const SoundEngine = {
     osc.stop(t + 0.15);
   },
   playWin() {
-    if (!this.ctx) return;
+    if (!soundEnabled || !this.ctx) return;
     const t = this.ctx.currentTime;
     const notes = [523.25, 659.25, 783.99, 1046.50];
     notes.forEach((freq, i) => {
@@ -1716,7 +1790,7 @@ const SoundEngine = {
     });
   },
   playDisconnect() {
-    if (!this.ctx) return;
+    if (!soundEnabled || !this.ctx) return;
     const t = this.ctx.currentTime;
     const notes = [880, 660];
     notes.forEach((freq, i) => {
@@ -1733,7 +1807,7 @@ const SoundEngine = {
     });
   },
   playRestart() {
-    if (!this.ctx) return;
+    if (!soundEnabled || !this.ctx) return;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     osc.type = 'sine';
@@ -1747,6 +1821,55 @@ const SoundEngine = {
     osc.stop(t + 0.3);
   }
 };
+
+function toggleSettings() {
+  const overlay = document.getElementById('settingsOverlay');
+  overlay.classList.toggle('show');
+  if (overlay.classList.contains('show')) {
+    renderThemeGrid();
+    updateSoundToggle();
+  }
+}
+
+function renderThemeGrid() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = '';
+  for (const [key, theme] of Object.entries(BOARD_THEMES)) {
+    const option = document.createElement('div');
+    option.className = 'theme-option' + (key === currentTheme ? ' active' : '');
+    option.innerHTML = `
+      <div class="theme-preview" style="background:${theme.preview}"></div>
+      <div class="theme-name">${theme.name}</div>
+    `;
+    option.onclick = () => {
+      currentTheme = key;
+      localStorage.setItem('gomoku_theme', key);
+      applyTheme();
+      draw();
+      renderThemeGrid();
+    };
+    grid.appendChild(option);
+  }
+}
+
+function applyTheme() {
+  const theme = BOARD_THEMES[currentTheme];
+  const wrapper = document.querySelector('.board-wrapper');
+  if (wrapper) wrapper.style.background = theme.wrapperBg;
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('gomoku_sound', soundEnabled ? 'true' : 'false');
+  updateSoundToggle();
+}
+
+function updateSoundToggle() {
+  const toggle = document.getElementById('soundToggle');
+  toggle.className = 'toggle-switch' + (soundEnabled ? ' on' : '');
+}
+
+applyTheme();
 
 function initSoundOnGesture() {
   SoundEngine.init();
@@ -1785,7 +1908,7 @@ function handleMessage(msg) {
   switch (msg.type) {
     case 'room_created':
       myCharacter = msg.character;
-      showRoomCreated(msg.roomId, msg.role);
+      showRoomCreated(msg.roomId);
       break;
 
     case 'guest_joined':
@@ -2219,11 +2342,131 @@ function resetGame() {
 }
 
 function draw() {
+  const theme = BOARD_THEMES[currentTheme];
   ctx.clearRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
-  ctx.fillStyle = '#d4a54a';
+
+  // 绘制主题背景纹理
+  ctx.fillStyle = theme.bg;
   ctx.fillRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
 
-  ctx.strokeStyle = '#8b6914';
+  // 根据主题添加特殊纹理效果
+  if (currentTheme === 'classic' || currentTheme === 'rosewood') {
+    // 木纹效果
+    ctx.save();
+    ctx.globalAlpha = 0.15;
+    for (let i = 0; i < 40; i++) {
+      ctx.strokeStyle = currentTheme === 'classic' ? '#8b6914' : '#3a1520';
+      ctx.lineWidth = Math.random() * 2 + 0.5;
+      ctx.beginPath();
+      const y = Math.random() * INTERNAL_SIZE;
+      ctx.moveTo(0, y);
+      ctx.bezierCurveTo(
+        INTERNAL_SIZE * 0.3, y + (Math.random() - 0.5) * 20,
+        INTERNAL_SIZE * 0.7, y + (Math.random() - 0.5) * 20,
+        INTERNAL_SIZE, y + (Math.random() - 0.5) * 10
+      );
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else if (currentTheme === 'bamboo') {
+    // 竹纹效果 - 竹节
+    ctx.save();
+    ctx.globalAlpha = 0.2;
+    for (let i = 0; i < 15; i++) {
+      const x = (i * INTERNAL_SIZE / 14);
+      ctx.strokeStyle = '#4a6b2a';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, INTERNAL_SIZE);
+      ctx.stroke();
+      // 竹节
+      for (let j = 0; j < 8; j++) {
+        const y = j * INTERNAL_SIZE / 7 + (i % 2) * 30;
+        ctx.fillStyle = '#4a6b2a';
+        ctx.fillRect(x - 2, y, 4, 3);
+      }
+    }
+    ctx.restore();
+  } else if (currentTheme === 'marble') {
+    // 大理石纹理
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    for (let i = 0; i < 50; i++) {
+      ctx.strokeStyle = i % 2 === 0 ? '#8b7d6b' : '#a09080';
+      ctx.lineWidth = Math.random() * 1.5 + 0.3;
+      ctx.beginPath();
+      const startX = Math.random() * INTERNAL_SIZE;
+      const startY = Math.random() * INTERNAL_SIZE;
+      ctx.moveTo(startX, startY);
+      for (let j = 0; j < 5; j++) {
+        ctx.lineTo(
+          startX + (Math.random() - 0.5) * 200,
+          startY + (Math.random() - 0.5) * 200
+        );
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else if (currentTheme === 'obsidian') {
+    // 黑曜石光泽
+    ctx.save();
+    const gradient = ctx.createRadialGradient(
+      INTERNAL_SIZE / 2, INTERNAL_SIZE / 2, 0,
+      INTERNAL_SIZE / 2, INTERNAL_SIZE / 2, INTERNAL_SIZE / 2
+    );
+    gradient.addColorStop(0, 'rgba(100, 100, 120, 0.2)');
+    gradient.addColorStop(0.5, 'rgba(60, 60, 80, 0.1)');
+    gradient.addColorStop(1, 'rgba(20, 20, 30, 0.15)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+    // 添加光泽线条
+    ctx.globalAlpha = 0.08;
+    for (let i = 0; i < 20; i++) {
+      ctx.strokeStyle = '#7777a0';
+      ctx.lineWidth = Math.random() * 2 + 0.5;
+      ctx.beginPath();
+      const angle = Math.random() * Math.PI * 2;
+      const cx = INTERNAL_SIZE / 2;
+      const cy = INTERNAL_SIZE / 2;
+      ctx.moveTo(cx + Math.cos(angle) * 50, cy + Math.sin(angle) * 50);
+      ctx.lineTo(cx + Math.cos(angle) * 300, cy + Math.sin(angle) * 300);
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else if (currentTheme === 'jade') {
+    // 玉石温润光泽 + 纹理
+    ctx.save();
+    // 温润光泽
+    const gradient = ctx.createRadialGradient(
+      INTERNAL_SIZE * 0.3, INTERNAL_SIZE * 0.3, 0,
+      INTERNAL_SIZE * 0.5, INTERNAL_SIZE * 0.5, INTERNAL_SIZE * 0.7
+    );
+    gradient.addColorStop(0, 'rgba(150, 220, 180, 0.25)');
+    gradient.addColorStop(0.5, 'rgba(100, 180, 140, 0.15)');
+    gradient.addColorStop(1, 'rgba(80, 140, 110, 0.1)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, INTERNAL_SIZE, INTERNAL_SIZE);
+    // 玉石纹理
+    ctx.globalAlpha = 0.1;
+    for (let i = 0; i < 30; i++) {
+      ctx.strokeStyle = '#2a5a40';
+      ctx.lineWidth = Math.random() * 1.5 + 0.3;
+      ctx.beginPath();
+      const y = Math.random() * INTERNAL_SIZE;
+      ctx.moveTo(0, y);
+      for (let j = 0; j < 8; j++) {
+        ctx.lineTo(
+          j * INTERNAL_SIZE / 7,
+          y + Math.sin(j * 0.5) * 15 + (Math.random() - 0.5) * 10
+        );
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  ctx.strokeStyle = theme.line;
   ctx.lineWidth = 1;
   for (let i = 0; i < SIZE; i++) {
     const p = PADDING + i * CELL;
@@ -2231,7 +2474,7 @@ function draw() {
     ctx.beginPath(); ctx.moveTo(p, PADDING); ctx.lineTo(p, PADDING + (SIZE - 1) * CELL); ctx.stroke();
   }
 
-  ctx.fillStyle = '#8b6914';
+  ctx.fillStyle = theme.dot;
   for (const r of [3, 7, 11]) {
     for (const c of [3, 7, 11]) {
       ctx.beginPath();
